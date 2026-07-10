@@ -1,20 +1,26 @@
+import Container from "@/components/ui/Container";
+import Button from "@/components/ui/Button";
+
 export default function Home() {
   return (
-    <main className="min-h-screen bg-amber-50">
-      <section className="mx-auto flex max-w-7xl flex-col items-center justify-center px-6 py-24 text-center">
-        <h1 className="text-6xl font-bold text-amber-700">
-          Buddhist Mala Store
+    <main className="min-h-screen bg-[#F8F6F2] py-20">
+      <Container>
+        <h1 className="mb-6 text-5xl font-bold text-[#6F4E37]">
+          Buddhist Mala Store Pro
         </h1>
 
-        <p className="mt-6 max-w-2xl text-lg text-gray-700">
-          Authentic Handmade Buddhist Malas, Gemstone Bracelets,
-          Singing Bowls and Himalayan Handicrafts from Nepal.
+        <p className="mb-10 max-w-2xl text-gray-700">
+          Design System Test
         </p>
 
-        <button className="mt-10 rounded-full bg-amber-700 px-8 py-4 text-white transition hover:bg-amber-800">
-          Shop Now
-        </button>
-      </section>
+        <div className="flex gap-4">
+          <Button>Primary Button</Button>
+
+          <Button variant="secondary">
+            Secondary Button
+          </Button>
+        </div>
+      </Container>
     </main>
   );
 }
