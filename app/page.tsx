@@ -1,26 +1,11 @@
-import Container from "@/components/ui/Container";
-import Button from "@/components/ui/Button";
+import EntryBackground from "@/components/entry/EntryBackground";
+import EntryContent from "@/components/entry/EntryContent";
 
-export default function Home() {
+export default function EntryPage() {
   return (
-    <main className="min-h-screen bg-[#F8F6F2] py-20">
-      <Container>
-        <h1 className="mb-6 text-5xl font-bold text-[#6F4E37]">
-          Buddhist Mala Store Pro
-        </h1>
-
-        <p className="mb-10 max-w-2xl text-gray-700">
-          Design System Test
-        </p>
-
-        <div className="flex gap-4">
-          <Button>Primary Button</Button>
-
-          <Button variant="secondary">
-            Secondary Button
-          </Button>
-        </div>
-      </Container>
+    <main className="relative min-h-screen overflow-hidden">
+      <EntryBackground />
+      <EntryContent />
     </main>
   );
 }
