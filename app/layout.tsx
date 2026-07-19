@@ -1,11 +1,21 @@
 import "./globals.css";
-import type { Metadata } from "next";
-import Header from "@/components/layout/Header";
 
-export const metadata: Metadata = {
-  title: "Buddhist Mala Store",
-  description: "Authentic Handmade Buddhist Malas",
-};
+import { Cinzel, Cormorant_Garamond, Inter } from "next/font/google";
+
+const cinzel = Cinzel({
+  subsets: ["latin"],
+  variable: "--font-cinzel",
+});
+
+const cormorant = Cormorant_Garamond({
+  subsets: ["latin"],
+  variable: "--font-cormorant",
+});
+
+const inter = Inter({
+  subsets: ["latin"],
+  variable: "--font-inter",
+});
 
 export default function RootLayout({
   children,
@@ -13,11 +23,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body>
-        <Header />
-        {children}
-      </body>
+    <html
+      lang="en"
+      className={`${cinzel.variable} ${cormorant.variable} ${inter.variable}`}
+    >
+      <body>{children}</body>
     </html>
   );
 }

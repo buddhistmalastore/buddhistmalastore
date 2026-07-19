@@ -1,20 +1,41 @@
+"use client";
+
+import Image from "next/image";
+
 export default function EntryBackground() {
   return (
-    <div className="absolute inset-0 overflow-hidden">
-      {/* Background Image */}
+    <div className="absolute inset-0 z-0 overflow-hidden">
+      {/* Main Background */}
+      <Image
+        src="/images/intro/final-bg.png"
+        alt="Himalayan Sunrise"
+        fill
+        priority
+        quality={100}
+        className="object-cover object-center select-none"
+      />
+
+      {/* Dark cinematic overlay */}
+      <div className="absolute inset-0 bg-black/30" />
+
+      {/* Warm sunrise glow */}
       <div
-        className="absolute inset-0 bg-cover bg-center scale-110"
+        className="absolute inset-0"
         style={{
-          backgroundImage:
-            "url('https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=2000&q=80')",
+          background:
+            "radial-gradient(circle at 50% 45%, rgba(255,210,110,.30), transparent 55%)",
+          mixBlendMode: "screen",
         }}
       />
 
-      {/* Dark Overlay */}
-      <div className="absolute inset-0 bg-black/60" />
-
-      {/* Gold Gradient */}
-      <div className="absolute inset-0 bg-gradient-to-t from-[#1F1A17] via-transparent to-black/30" />
+      {/* Edge vignette */}
+      <div
+        className="absolute inset-0"
+        style={{
+          background:
+            "radial-gradient(circle, transparent 55%, rgba(0,0,0,.75) 100%)",
+        }}
+      />
     </div>
   );
 }

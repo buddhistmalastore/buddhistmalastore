@@ -1,52 +1,78 @@
 "use client";
-import { siteConfig } from "@/data/site";
+
 import { motion } from "framer-motion";
-import EnterButton from "./EnterButton";
+import EntryLogo from "./EntryLogo";
 
 export default function EntryContent() {
   return (
-    <div className="relative z-10 flex min-h-screen flex-col items-center justify-center px-6 text-center text-white">
+    <section className="fixed inset-0 z-50">
 
-      <motion.p
-        initial={{ opacity: 0, y: 25 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 1 }}
-        className="mb-4 uppercase tracking-[0.45em] text-[#C8A951]"
-      >
-        Handcrafted in Nepal
-      </motion.p>
-
-      <motion.h1
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.5, duration: 1 }}
-        className="text-5xl font-bold md:text-7xl"
-      >
-        {siteConfig.name}
-      </motion.h1>
-
-      <motion.p
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 1, duration: 1 }}
-        className="mt-6 max-w-2xl text-lg text-gray-300"
-      >
-        {siteConfig.tagline}
-      </motion.p>
-
-      <motion.p
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 1.3, duration: 1 }}
-        className="mt-3 text-[#C8A951]"
-      >
-       {siteConfig.slogan}
-      </motion.p>
-
-      <div className="mt-10">
-        <EnterButton />
+      {/* Dharma Wheel */}
+      <div className="absolute left-1/2 top-[40%] -translate-x-1/2 -translate-y-1/2">
+        <EntryLogo />
       </div>
 
-    </div>
+      {/* Brand Text */}
+      <motion.div
+        className="absolute left-1/2 top-[66%] -translate-x-1/2 text-center"
+        initial={{ opacity: 0, y: 40 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{
+          duration: 1.8,
+          delay: 0.8,
+        }}
+      >
+        <h1
+          className="heading-font"
+          style={{
+            fontSize: "56px",
+            color: "#F8E8B5",
+            letterSpacing: "8px",
+            textShadow: "0 0 30px rgba(255,220,120,.45)",
+            fontWeight: 600,
+          }}
+        >
+          BUDDHIST MALA STORE
+        </h1>
+
+        <motion.p
+          className="elegant-font"
+          style={{
+            marginTop: 18,
+            color: "#E9D7A2",
+            fontSize: 26,
+            letterSpacing: "3px",
+          }}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{
+            delay: 1.8,
+            duration: 1.2,
+          }}
+        >
+          Handcrafted in Nepal
+        </motion.p>
+
+        <motion.p
+          className="elegant-font"
+          style={{
+            marginTop: 12,
+            color: "#d7c69a",
+            fontSize: 20,
+            letterSpacing: "2px",
+          }}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{
+            delay: 2.8,
+            duration: 1.2,
+          }}
+        >
+          Every Bead Holds A Story
+        </motion.p>
+
+      </motion.div>
+
+    </section>
   );
 }
