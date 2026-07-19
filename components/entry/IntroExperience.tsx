@@ -8,6 +8,7 @@ import FloatingParticles from "./FloatingParticles";
 import EntryContent from "./EntryContent";
 import TransitionOverlay from "./TransitionOverlay";
 import IntroController from "./IntroController";
+import CameraMotion from "./CameraMotion";
 
 export default function IntroExperience() {
   return (
@@ -15,17 +16,22 @@ export default function IntroExperience() {
 
       <IntroController />
 
-      {/* Environment */}
-      <EntryBackground />
-      <Sunrise />
-      <LightRays />
-      <AnimatedMist />
-      <FloatingParticles />
+      <CameraMotion>
 
-      {/* Branding */}
-      <EntryContent />
+        <EntryBackground />
 
-      {/* Transition */}
+        <Sunrise />
+
+        <LightRays />
+
+        <AnimatedMist />
+
+        <FloatingParticles />
+
+        <EntryContent />
+
+      </CameraMotion>
+
       <TransitionOverlay />
 
     </main>

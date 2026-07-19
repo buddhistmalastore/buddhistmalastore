@@ -1,51 +1,34 @@
 "use client";
 
 import { motion } from "framer-motion";
+import useIntroTimeline from "./hooks/useIntroTimeline";
 
 export default function Sunrise() {
-  return (
-    <>
-      {/* Main Sun */}
-      <motion.div
-        className="absolute left-1/2 top-[34%] z-10 -translate-x-1/2 rounded-full"
-        style={{
-          width: 180,
-          height: 180,
-          background:
-            "radial-gradient(circle, rgba(255,230,150,1) 0%, rgba(255,200,80,.85) 35%, rgba(255,170,50,.35) 70%, transparent 100%)",
-          filter: "blur(18px)",
-        }}
-        animate={{
-          scale: [1, 1.08, 1],
-          opacity: [0.75, 1, 0.75],
-        }}
-        transition={{
-          duration: 6,
-          repeat: Infinity,
-          ease: "easeInOut",
-        }}
-      />
+  const phase = useIntroTimeline();
 
-      {/* Large Ambient Glow */}
-      <motion.div
-        className="absolute left-1/2 top-[34%] z-0 -translate-x-1/2 rounded-full"
+  if (phase < 1) return null;
+
+  return (
+    <motion.div
+      className="absolute inset-0 z-[-15] pointer-events-none"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{
+        duration: 3,
+        ease: "easeOut",
+      }}
+    >
+      <div
+        className="absolute left-1/2 bottom-0 -translate-x-1/2"
         style={{
-          width: 700,
-          height: 700,
+          width: "900px",
+          height: "900px",
+          borderRadius: "50%",
           background:
-            "radial-gradient(circle, rgba(255,190,70,.18), transparent 72%)",
-          filter: "blur(50px)",
-        }}
-        animate={{
-          opacity: [0.18, 0.34, 0.18],
-          scale: [1, 1.05, 1],
-        }}
-        transition={{
-          duration: 8,
-          repeat: Infinity,
-          ease: "easeInOut",
+            "radial-gradient(circle, rgba(255,214,120,.45), rgba(255,180,0,.15), transparent 70%)",
+          filter: "blur(60px)",
         }}
       />
-    </>
+    </motion.div>
   );
 }
