@@ -1,38 +1,36 @@
 "use client";
 
-import EntryBackground from "./EntryBackground";
-import Sunrise from "./Sunrise";
-import LightRays from "./LightRays";
-import AnimatedMist from "./AnimatedMist";
+import SceneEngine from "./SceneEngine";
+import EnvironmentEngine from "./environment/EnvironmentEngine";
+
+import BirdFlock from "./BirdFlock";
 import FloatingParticles from "./FloatingParticles";
+import LightRays from "./LightRays";
+import TempleBell from "./TempleBell";
+
 import EntryContent from "./EntryContent";
-import TransitionOverlay from "./TransitionOverlay";
 import IntroController from "./IntroController";
-import CameraMotion from "./CameraMotion";
+import TransitionOverlay from "./TransitionOverlay";
 
 export default function IntroExperience() {
   return (
     <main className="relative h-screen w-screen overflow-hidden bg-black">
 
-      <IntroController />
+      <SceneEngine>
 
-      <CameraMotion>
+  <EnvironmentEngine />
 
-        <EntryBackground />
+  <LightRays />
 
-        <Sunrise />
+  <BirdFlock />
 
-        <LightRays />
+  <FloatingParticles />
 
-        <AnimatedMist />
+  <TempleBell />
 
-        <FloatingParticles />
+  <EntryContent />
 
-        <EntryContent />
-
-      </CameraMotion>
-
-      <TransitionOverlay />
+</SceneEngine>
 
     </main>
   );

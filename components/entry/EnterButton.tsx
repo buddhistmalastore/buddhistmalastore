@@ -1,60 +1,48 @@
 "use client";
 
 import { motion } from "framer-motion";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 
 export default function EnterButton() {
+  const router = useRouter();
+  const [loading, setLoading] = useState(false);
+
+  const handleEnter = () => {
+    if (loading) return;
+
+    setLoading(true);
+
+    sessionStorage.setItem("introSeen", "true");
+
+    setTimeout(() => {
+      router.push("/home");
+    }, 1000);
+  };
+
   return (
     <motion.button
-      whileHover={{
-        scale: 1.05,
-        boxShadow: "0 0 35px rgba(200,169,81,.45)",
+      onClick={handleEnter}
+      disabled={loading}
+      initial={{ opacity: 0, y: 25 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: 3.5, duration: 1 }}
+      whileHover={{ scale: 1.05 }}
+      whileTap={{ scale: 0.98 }}
+      className="group relative overflow-hidden rounded-full border border-[#d4af37] px-12 py-4"
+      style={{
+        background:
+          "linear-gradient(180deg, rgba(30,25,15,.55), rgba(10,10,10,.35))",
       }}
-      whileTap={{
-        scale: 0.96,
-      }}
-      transition={{
-        duration: 0.25,
-      }}
-      className="
-        group
-        relative
-        overflow-hidden
-        rounded-full
-        border
-        border-[#C8A951]
-        bg-black/20
-        backdrop-blur-xl
-        px-14
-        py-5
-        text-lg
-        font-semibold
-        tracking-[0.25em]
-        uppercase
-        text-[#F8F4E8]
-        transition-all
-      "
     >
-      {/* Animated Shine */}
       <span
-        className="
-          absolute
-          left-[-120%]
-          top-0
-          h-full
-          w-1/2
-          rotate-12
-          bg-gradient-to-r
-          from-transparent
-          via-white/40
-          to-transparent
-          transition-all
-          duration-1000
-          group-hover:left-[140%]
-        "
-      />
-
-      <span className="relative z-10">
-        Enter Store
+        className="relative z-10 heading-font"
+        style={{
+          color: "#F5E6B3",
+          letterSpacing: "5px",
+        }}
+      >
+        {loading ? "ENTERING..." : "ENTER THE JOURNEY"}
       </span>
     </motion.button>
   );

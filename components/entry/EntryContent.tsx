@@ -2,19 +2,20 @@
 
 import { motion } from "framer-motion";
 import EntryLogo from "./EntryLogo";
+import EnterButton from "./EnterButton";
 
 export default function EntryContent() {
   return (
     <section className="fixed inset-0 z-50">
 
       {/* Dharma Wheel */}
-      <div className="absolute left-1/2 top-[40%] -translate-x-1/2 -translate-y-1/2">
+      <div className="absolute left-1/2 top-[43%] -translate-x-1/2 -translate-y-1/2">
         <EntryLogo />
       </div>
 
       {/* Brand Text */}
       <motion.div
-        className="absolute left-1/2 top-[66%] -translate-x-1/2 text-center"
+        className="absolute left-1/2 top-[63%] -translate-x-1/2 text-center"
         initial={{ opacity: 0, y: 40 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{
@@ -69,6 +70,9 @@ export default function EntryContent() {
           }}
         >
           Every Bead Holds A Story
+          <div className="mt-12 flex justify-center">
+  <EnterButton />
+</div>
         </motion.p>
 
       </motion.div>
