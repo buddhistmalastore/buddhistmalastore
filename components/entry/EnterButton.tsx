@@ -1,49 +1,127 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { useRouter } from "next/navigation";
 import { useState } from "react";
 
-export default function EnterButton() {
-  const router = useRouter();
-  const [loading, setLoading] = useState(false);
+type Props = {
+  onClick?: () => void;
+};
 
-  const handleEnter = () => {
-    if (loading) return;
-
-    setLoading(true);
-
-    sessionStorage.setItem("introSeen", "true");
-
-    setTimeout(() => {
-      router.push("/home");
-    }, 1000);
-  };
+export default function EnterButton({ onClick }: Props) {
+  const [hover, setHover] = useState(false);
 
   return (
-    <motion.button
-      onClick={handleEnter}
-      disabled={loading}
-      initial={{ opacity: 0, y: 25 }}
+    <motion.div
+      initial={{ opacity: 0, y: 30 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: 3.5, duration: 1 }}
-      whileHover={{ scale: 1.05 }}
-      whileTap={{ scale: 0.98 }}
-      className="group relative overflow-hidden rounded-full border border-[#d4af37] px-12 py-4"
-      style={{
-        background:
-          "linear-gradient(180deg, rgba(30,25,15,.55), rgba(10,10,10,.35))",
+      transition={{
+        duration: 1,
+        ease: [0.22, 1, 0.36, 1],
       }}
+      className="relative"
     >
-      <span
-        className="relative z-10 heading-font"
+      <motion.button
+        onClick={onClick}
+        onMouseEnter={() => setHover(true)}
+        onMouseLeave={() => setHover(false)}
+        whileHover={{
+          y: -4,
+          scale: 1.02,
+        }}
+        whileTap={{
+          scale: 0.98,
+        }}
+        transition={{
+          duration: 0.35,
+        }}
+        className="relative overflow-hidden rounded-full px-14 py-5"
         style={{
-          color: "#F5E6B3",
-          letterSpacing: "5px",
+          border: "1px solid rgba(255,215,120,.65)",
+          background:
+            "linear-gradient(180deg, rgba(20,20,20,.62), rgba(8,8,8,.38))",
+          backdropFilter: "blur(12px)",
         }}
       >
-        {loading ? "ENTERING..." : "ENTER THE JOURNEY"}
-      </span>
-    </motion.button>
+        {/* Slow luxury shine */}
+        <motion.div
+          className="absolute inset-0"
+          animate={{
+            x: ["-180%", "220%"],
+          }}
+          transition={{
+            duration: 7.5,
+            repeat: Infinity,
+            repeatDelay: 2,
+            ease: "linear",
+          }}
+          style={{
+            background:
+              "linear-gradient(100deg, transparent 35%, rgba(255,255,255,.20) 50%, transparent 65%)",
+            transform: "skewX(-25deg)",
+          }}
+        />
+
+        {/* Soft breathing glow */}
+        <motion.div
+          className="absolute inset-0 rounded-full"
+          animate={{
+            opacity: hover ? 1 : 0.55,
+            boxShadow: hover
+              ? "0 0 45px rgba(255,210,120,.45)"
+              : [
+                  "0 0 8px rgba(255,210,120,.15)",
+                  "0 0 22px rgba(255,210,120,.28)",
+                  "0 0 8px rgba(255,210,120,.15)",
+                ],
+          }}
+          transition={{
+            duration: hover ? 0.3 : 6,
+            repeat: hover ? 0 : Infinity,
+            ease: "easeInOut",
+          }}
+        />
+
+        {/* Button Text */}
+        <motion.div
+          animate={{
+            color: hover ? "#FFF5D8" : "#F6E5B2",
+          }}
+          transition={{
+            duration: 0.3,
+          }}
+          className="relative z-10 heading-font text-center"
+          style={{
+            fontSize: "18px",
+            letterSpacing: "5px",
+            fontWeight: 600,
+            textShadow:
+              "0 2px 6px rgba(0,0,0,.55),0 0 18px rgba(255,220,120,.25)",
+          }}
+        >
+          ENTER THE JOURNEY
+        </motion.div>
+      </motion.button>
+
+      {/* Hover Text */}
+      <motion.div
+        initial={false}
+        animate={{
+          opacity: hover ? 1 : 0,
+          y: hover ? 0 : -6,
+        }}
+        transition={{
+          duration: 0.35,
+        }}
+        className="absolute left-1/2 mt-4 -translate-x-1/2 whitespace-nowrap pointer-events-none"
+        style={{
+          color: "#E9D7A2",
+          fontSize: "13px",
+          letterSpacing: "2px",
+          fontStyle: "italic",
+        }}
+      >
+        Crafted with Devotion • Enter →
+      </motion.div>
+    </motion.div>
   );
 }

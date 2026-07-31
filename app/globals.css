@@ -1,17 +1,18 @@
 @import "tailwindcss";
+@import "../styles/tokens.css";
 
-/* ------------------------------
-   Theme
------------------------------- */
+/* ================================
+   ROOT VARIABLES
+================================ */
 
 :root {
   --background: #000000;
-  --foreground: #ffffff;
+  --foreground: #1F1A17;
 }
 
-/* ------------------------------
-   Base
------------------------------- */
+/* ================================
+   RESET
+================================ */
 
 *,
 *::before,
@@ -19,24 +20,72 @@
   box-sizing: border-box;
 }
 
-html,
+/* ================================
+   HTML
+================================ */
+
+html {
+  width: 100%;
+  min-height: 100%;
+  scroll-behavior: smooth;
+}
+
+/* ================================
+   BODY
+================================ */
+
 body {
   width: 100%;
-  height: 100%;
+  min-height: 100vh;
+
   margin: 0;
   padding: 0;
-  overflow: hidden;
-  scroll-behavior: smooth;
 
-  background: #000;
+  overflow-x: hidden;
+  overflow-y: auto;
+
+  background: var(--background);
   color: var(--foreground);
 
   font-family: var(--font-inter), Arial, Helvetica, sans-serif;
+
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
 }
 
-/* ------------------------------
-   Fonts
------------------------------- */
+/* ================================
+   IMAGES
+================================ */
+
+img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+/* ================================
+   LINKS
+================================ */
+
+a {
+  color: inherit;
+  text-decoration: none;
+  transition: color .3s ease;
+}
+
+/* ================================
+   BUTTONS
+================================ */
+
+button {
+  font-family: inherit;
+  cursor: pointer;
+}
+
+/* ================================
+   CUSTOM FONTS
+================================ */
 
 .heading-font {
   font-family: var(--font-cinzel);
@@ -50,19 +99,20 @@ body {
   font-family: var(--font-cormorant);
 }
 
-/* ------------------------------
-   Intro Exit Animation
------------------------------- */
+/* ================================
+   INTRO TRANSITION
+================================ */
 
 body.intro-leaving {
   overflow: hidden;
 }
 
 body.intro-leaving main {
-  animation: introExit 0.9s ease forwards;
+  animation: introExit .9s ease forwards;
 }
 
 @keyframes introExit {
+
   0% {
     opacity: 1;
     transform: scale(1);
@@ -78,4 +128,85 @@ body.intro-leaving main {
     transform: scale(1.08);
     filter: blur(12px) brightness(2);
   }
+
+}
+
+/* ================================
+   LUXURY CURSOR
+================================ */
+
+body.intro-cursor,
+body.intro-cursor button,
+body.intro-cursor a {
+  cursor: none;
+}
+
+/* ================================
+   TEXT SELECTION
+================================ */
+
+::selection {
+  background: #D4AF37;
+  color: #000;
+}
+
+/* ================================
+   SCROLLBAR
+================================ */
+
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: #080808;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #5F4B1F;
+  border-radius: 20px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #D4AF37;
+}
+
+/* ================================
+   LIGHT SECTIONS
+================================ */
+
+.bg-white,
+.bg-\[\#F7F3EC\],
+.bg-\[\#FAF7F1\],
+.bg-\[\#F8F3EB\],
+.bg-\[\#F6F1E8\] {
+  color: #2B251F;
+}
+
+/* ================================
+   FOOTER
+================================ */
+
+footer {
+  color: #2B251F;
+}
+
+footer h1,
+footer h2,
+footer h3,
+footer h4,
+footer h5,
+footer h6 {
+  color: #1F1A17;
+}
+
+footer p,
+footer span,
+footer li,
+footer a {
+  color: #3B352F;
+}
+
+footer a:hover {
+  color: #D4AF37;
 }
