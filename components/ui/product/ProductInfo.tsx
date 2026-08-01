@@ -14,14 +14,14 @@ export default function ProductInfo({
   product,
 }: ProductInfoProps) {
   return (
-    <div className="flex flex-col p-5">
+    <div className="flex flex-1 flex-col p-4">
 
       {/* Product Name */}
 
       <h3
         className="
           heading-font
-          text-[24px]
+          text-[21px]
           leading-snug
           text-[#1F1A17]
           transition-colors
@@ -34,31 +34,18 @@ export default function ProductInfo({
 
       {/* Rating */}
 
-      <div className="mt-3">
+      <div className="mt-2">
         <ProductRating
           rating={product.rating}
           reviewCount={product.reviewCount}
         />
       </div>
 
-      {/* Short Description */}
-
-      <p
-        className="
-          mt-4
-          text-[15px]
-          leading-7
-          text-[#6E665D]
-        "
-      >
-        {product.shortDescription}
-      </p>
-
       {/* Product Meta */}
 
       <div
         className="
-          mt-4
+          mt-3
           flex
           flex-wrap
           gap-2
@@ -109,18 +96,24 @@ export default function ProductInfo({
 
       {/* Price */}
 
-      <div className="mt-6">
+      <div className="mt-4">
         <ProductPrice
           price={product.price}
           salePrice={product.salePrice}
         />
       </div>
 
+      {/* Spacer */}
+
+      <div className="flex-1" />
+
       {/* Buttons */}
 
-      <ProductActions
-        inStock={product.inStock}
-      />
+      <div className="mt-4">
+        <ProductActions
+          inStock={product.inStock}
+        />
+      </div>
 
     </div>
   );

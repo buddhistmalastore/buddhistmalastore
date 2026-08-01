@@ -17,6 +17,18 @@ export default function ProductCard({
 }: ProductCardProps) {
   return (
     <motion.article
+      initial={{
+        opacity: 0,
+        y: 25,
+      }}
+      whileInView={{
+        opacity: 1,
+        y: 0,
+      }}
+      viewport={{
+        once: true,
+        amount: 0.2,
+      }}
       whileHover={{
         y: -8,
       }}
@@ -26,6 +38,7 @@ export default function ProductCard({
       }}
       className="
         group
+        relative
         overflow-hidden
         rounded-[28px]
         border
@@ -37,20 +50,19 @@ export default function ProductCard({
         hover:shadow-[0_25px_60px_rgba(0,0,0,.10)]
       "
     >
-      <div className="relative">
+      {/* Badge */}
 
-        {/* Badge */}
+      <ProductBadge
+        badge={product.badge}
+      />
 
-        <ProductBadge badge={product.badge} />
+      {/* Product Image */}
 
-        {/* Image */}
-
-        <ProductImage
-          image={product.image}
-          name={product.name}
-        />
-
-      </div>
+      <ProductImage
+        frontImage={product.images.front}
+        backImage={product.images.back}
+        name={product.name}
+      />
 
       {/* Product Information */}
 
@@ -58,6 +70,51 @@ export default function ProductCard({
         product={product}
       />
 
+      {/* Premium Gold Border Animation */}
+
+      <motion.div
+        className="
+          pointer-events-none
+          absolute
+          inset-0
+          rounded-[28px]
+          border
+          border-[#C79B2A]
+        "
+        initial={{
+          opacity: 0,
+        }}
+        whileHover={{
+          opacity: 1,
+        }}
+        transition={{
+          duration: 0.35,
+        }}
+      />
+
+      {/* Luxury Glow */}
+
+      <motion.div
+        className="
+          pointer-events-none
+          absolute
+          inset-0
+          rounded-[28px]
+          bg-gradient-to-br
+          from-[#C79B2A]/0
+          via-[#C79B2A]/5
+          to-[#C79B2A]/0
+        "
+        initial={{
+          opacity: 0,
+        }}
+        whileHover={{
+          opacity: 1,
+        }}
+        transition={{
+          duration: 0.45,
+        }}
+      />
     </motion.article>
   );
 }

@@ -1,4 +1,4 @@
-import Header from "@/components/home/Header/Header";
+import Header from "@/components/layout/Header/Header";
 import Hero from "@/components/home/Hero/Hero";
 import FeaturedCollections from "@/components/home/Collections/FeaturedCollections";
 import WhyBuddhist from "@/components/home/WhyBuddhist/WhyBuddhist";
@@ -17,7 +17,7 @@ export default function HomePage() {
       <Header />
       <Hero />
       <FeaturedCollections />
-      <WhyBuddhist />
+      <WhyBuddhist />  
       <BestSellers />
       <Purpose />
       <Gemstones />

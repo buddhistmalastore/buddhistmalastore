@@ -9,9 +9,15 @@ export interface Product {
 
   description: string;
 
-  image: string;
+  /* Images */
 
-  gallery: string[];
+  images: {
+    front: string;
+    back: string;
+    gallery: string[];
+  };
+
+  /* Category */
 
   category: string;
 
@@ -19,15 +25,21 @@ export interface Product {
 
   origin: string;
 
+  /* Beads */
+
   beadSize: number;
 
   beadCount: number;
 
   weight: number;
 
+  /* Price */
+
   price: number;
 
   salePrice?: number;
+
+  /* Inventory */
 
   sku: string;
 
@@ -35,11 +47,29 @@ export interface Product {
 
   inStock: boolean;
 
+  /* Reviews */
+
   rating: number;
 
   reviewCount: number;
 
+  /* Labels */
+
   badge?: "New" | "Best Seller" | "Limited" | "Sale";
 
   featured: boolean;
+
+  /* Product Details */
+
+  color?: string;
+
+  chakra?: string;
+
+  benefits?: string[];
+
+  specifications?: {
+    thread: string;
+    guruBead: string;
+    knotting: string;
+  };
 }

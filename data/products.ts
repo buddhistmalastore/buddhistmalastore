@@ -14,13 +14,17 @@ export const products: Product[] = [
     description:
       "Handcrafted in Nepal using authentic 8 mm natural Tiger Eye gemstones with traditional knotting and guru bead.",
 
-    image: "/products/tiger-eye.jpg",
+    images: {
+      front: "/products/tiger-eye.jpg",
 
-    gallery: [
-      "/products/tiger-eye.jpg",
-      "/products/tiger-eye-2.jpg",
-      "/products/tiger-eye-3.jpg",
-    ],
+      back: "/products/tiger-eye-2.jpg",
+
+      gallery: [
+        "/products/tiger-eye.jpg",
+        "/products/tiger-eye-2.jpg",
+        "/products/tiger-eye-3.jpg",
+      ],
+    },
 
     category: "Gemstone Mala",
 
@@ -49,6 +53,24 @@ export const products: Product[] = [
     badge: "Best Seller",
 
     featured: true,
+
+    color: "Brown",
+
+    chakra: "Solar Plexus",
+
+    benefits: [
+      "Protection",
+      "Confidence",
+      "Grounding",
+    ],
+
+    specifications: {
+      thread: "Premium Nylon",
+
+      guruBead: "Tiger Eye",
+
+      knotting: "Traditional Hand Knot",
+    },
   },
 
   {
@@ -64,11 +86,16 @@ export const products: Product[] = [
     description:
       "Traditional Nepalese handcrafted Rose Quartz mala designed for meditation and compassion.",
 
-    image: "/products/rose-quartz.jpg",
+    images: {
+      front: "/products/rose-quartz.jpg",
 
-    gallery: [
-      "/products/rose-quartz.jpg",
-    ],
+      back: "/products/rose-quartz-2.jpg",
+
+      gallery: [
+        "/products/rose-quartz.jpg",
+        "/products/rose-quartz-2.jpg",
+      ],
+    },
 
     category: "Gemstone Mala",
 
@@ -97,5 +124,23 @@ export const products: Product[] = [
     badge: "New",
 
     featured: true,
+
+    color: "Pink",
+
+    chakra: "Heart",
+
+    benefits: [
+      "Love",
+      "Peace",
+      "Healing",
+    ],
+
+    specifications: {
+      thread: "Premium Nylon",
+
+      guruBead: "Rose Quartz",
+
+      knotting: "Traditional Hand Knot",
+    },
   },
 ];

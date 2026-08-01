@@ -5,114 +5,153 @@ import { motion } from "framer-motion";
 import { FaHeart, FaRegEye } from "react-icons/fa";
 
 interface ProductImageProps {
-  image: string;
+  frontImage: string;
+  backImage: string;
   name: string;
 }
 
 export default function ProductImage({
-  image,
+  frontImage,
+  backImage,
   name,
 }: ProductImageProps) {
   return (
-    <div className="group relative overflow-hidden rounded-[28px] bg-[#FAF8F4]">
-
-      {/* Product Image */}
+    <div
+      className="
+        group
+        relative
+        overflow-hidden
+        rounded-t-[28px]
+        bg-[#FAF8F4]
+      "
+    >
+      {/* Front Image */}
 
       <motion.div
-        whileHover={{ scale: 1.06 }}
+        className="absolute inset-0 z-10"
+        whileHover={{
+          opacity: 0,
+          scale: 1.05,
+        }}
         transition={{
           duration: 0.45,
-          ease: "easeOut",
         }}
       >
         <Image
-          src={image}
+          src={frontImage}
           alt={name}
-          width={700}
-          height={875}
-          priority={false}
-          className="
-            aspect-[4/5]
-            w-full
-            object-cover
-            transition-all
-            duration-500
-          "
+          fill
+          priority
+          className="object-cover"
         />
       </motion.div>
 
-      {/* Wishlist */}
+      {/* Back Image */}
 
-      <button
-        className="
-          absolute
-          right-4
-          top-4
-          z-20
-          flex
-          h-10
-          w-10
-          items-center
-          justify-center
-          rounded-full
-          bg-white/95
-          text-[#1F1A17]
-          opacity-0
-          shadow-lg
-          transition-all
-          duration-300
-          group-hover:opacity-100
-          hover:bg-[#C79B2A]
-          hover:text-white
-        "
+      <motion.div
+        className="relative aspect-[5/5.2]"
+        initial={{
+          opacity: 0,
+        }}
+        whileHover={{
+          opacity: 1,
+          scale: 1.05,
+        }}
+        transition={{
+          duration: 0.45,
+        }}
       >
-        <FaHeart size={15} />
-      </button>
+        <Image
+          src={backImage}
+          alt={`${name} Back`}
+          fill
+          className="object-cover"
+        />
+      </motion.div>
 
-      {/* Quick View */}
+      {/* Luxury Shine */}
 
-      <button
-        className="
-          absolute
-          right-4
-          top-16
-          z-20
-          flex
-          h-10
-          w-10
-          items-center
-          justify-center
-          rounded-full
-          bg-white/95
-          text-[#1F1A17]
-          opacity-0
-          shadow-lg
-          transition-all
-          duration-500
-          group-hover:opacity-100
-          hover:bg-[#C79B2A]
-          hover:text-white
-        "
-      >
-        <FaRegEye size={15} />
-      </button>
+      <div className="pointer-events-none absolute inset-0 overflow-hidden">
+        <div
+          className="
+            absolute
+            -left-[150%]
+            top-0
+            h-full
+            w-[45%]
+            rotate-12
+            bg-gradient-to-r
+            from-transparent
+            via-white/30
+            to-transparent
+            transition-all
+            duration-700
+            group-hover:left-[160%]
+          "
+        />
+      </div>
 
-      {/* Luxury Gradient */}
+      {/* Floating Actions */}
 
       <div
         className="
-          pointer-events-none
           absolute
-          inset-x-0
-          bottom-0
-          h-24
-          bg-gradient-to-t
-          from-black/15
-          via-transparent
-          to-transparent
+          bottom-4
+          right-4
+          z-30
+          flex
+          translate-y-3
+          items-center
+          gap-2
+          rounded-full
+          border
+          border-white/20
+          bg-white/90
+          px-2
+          py-2
+          opacity-0
+          shadow-xl
+          backdrop-blur-xl
+          transition-all
+          duration-500
+          group-hover:translate-y-0
+          group-hover:opacity-100
         "
-      />
+      >
+        <button
+          className="
+            flex
+            h-9
+            w-9
+            items-center
+            justify-center
+            rounded-full
+            transition
+            hover:bg-[#C79B2A]
+            hover:text-white
+          "
+          aria-label="Wishlist"
+        >
+          <FaHeart size={14} />
+        </button>
 
+        <button
+          className="
+            flex
+            h-9
+            w-9
+            items-center
+            justify-center
+            rounded-full
+            transition
+            hover:bg-[#C79B2A]
+            hover:text-white
+          "
+          aria-label="Quick View"
+        >
+          <FaRegEye size={14} />
+        </button>
+      </div>
     </div>
   );
 }
