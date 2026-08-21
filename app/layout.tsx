@@ -1,21 +1,15 @@
+import type { Metadata } from "next";
+
+import { CartProvider } from "@/context/CartContext";
+import { CurrencyProvider } from "@/context/CurrencyContext";
+
 import "./globals.css";
 
-import { Cinzel, Cormorant_Garamond, Inter } from "next/font/google";
-
-const cinzel = Cinzel({
-  subsets: ["latin"],
-  variable: "--font-cinzel",
-});
-
-const cormorant = Cormorant_Garamond({
-  subsets: ["latin"],
-  variable: "--font-cormorant",
-});
-
-const inter = Inter({
-  subsets: ["latin"],
-  variable: "--font-inter",
-});
+export const metadata: Metadata = {
+  title: "Buddhist Mala Store & Handicraft Center",
+  description:
+    "Handcrafted malas, gemstone jewelry and spiritual products from Nepal.",
+};
 
 export default function RootLayout({
   children,
@@ -23,11 +17,14 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html
-      lang="en"
-      className={`${cinzel.variable} ${cormorant.variable} ${inter.variable}`}
-    >
-      <body>{children}</body>
+    <html lang="en">
+      <body className="antialiased">
+        <CurrencyProvider>
+          <CartProvider>
+            {children}
+          </CartProvider>
+        </CurrencyProvider>
+      </body>
     </html>
   );
 }

@@ -1,0 +1,90 @@
+:root {
+  /* ===========================
+     COLORS
+  ============================ */
+
+  --color-primary: #d4af37;
+  --color-primary-light: #f4d77b;
+  --color-primary-dark: #8c6a11;
+
+  --color-bg: #0b0b0b;
+  --color-surface: #141414;
+  --color-surface-light: #1b1b1b;
+
+  --color-white: #ffffff;
+  --color-ivory: #f7f3ec;
+
+  --color-text: #f5f2eb;
+  --color-text-muted: #cfc7b7;
+
+  --color-border: rgba(255,255,255,.08);
+
+  --color-success: #4caf50;
+  --color-danger: #ff5a5f;
+
+  /* ===========================
+     SPACING
+  ============================ */
+
+  --space-1:4px;
+  --space-2:8px;
+  --space-3:12px;
+  --space-4:16px;
+  --space-5:24px;
+  --space-6:32px;
+  --space-7:40px;
+  --space-8:48px;
+  --space-9:64px;
+  --space-10:80px;
+  --space-11:96px;
+  --space-12:120px;
+
+  /* ===========================
+     BORDER RADIUS
+  ============================ */
+
+  --radius-sm:8px;
+  --radius-md:16px;
+  --radius-lg:24px;
+  --radius-xl:32px;
+  --radius-full:999px;
+
+  /* ===========================
+     SHADOW
+  ============================ */
+
+  --shadow-sm:
+      0 4px 10px rgba(0,0,0,.18);
+
+  --shadow-md:
+      0 12px 30px rgba(0,0,0,.22);
+
+  --shadow-xl:
+      0 20px 60px rgba(0,0,0,.35);
+
+  --shadow-gold:
+      0 0 25px rgba(212,175,55,.22);
+
+  /* ===========================
+     CONTAINER
+  ============================ */
+
+  --container-width:1440px;
+
+  /* ===========================
+     HEADER
+  ============================ */
+
+  --header-height:88px;
+
+  /* ===========================
+     TRANSITION
+  ============================ */
+
+  --transition-fast:.25s;
+
+  --transition-normal:.45s;
+
+  --transition-slow:.8s;
+
+}
