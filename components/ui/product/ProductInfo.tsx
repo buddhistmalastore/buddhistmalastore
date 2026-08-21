@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { Product } from "@/types/product";
 
@@ -37,7 +37,7 @@ export default function ProductInfo({
       <div className="mt-2">
         <ProductRating
           rating={product.rating}
-          reviewCount={product.reviewCount}
+          reviewCount={product.reviews}
         />
       </div>
 
@@ -98,9 +98,10 @@ export default function ProductInfo({
 
       <div className="mt-4">
         <ProductPrice
-          price={product.price}
-          salePrice={product.salePrice}
-        />
+  price={product.price}
+  oldPrice={product.oldPrice}
+  discount={product.discount}
+/>
       </div>
 
       {/* Spacer */}
@@ -111,10 +112,11 @@ export default function ProductInfo({
 
       <div className="mt-4">
         <ProductActions
-          inStock={product.inStock}
+          inStock={product.stock > 0}
         />
       </div>
 
     </div>
   );
 }
+

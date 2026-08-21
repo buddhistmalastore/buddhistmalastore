@@ -8,12 +8,21 @@ interface Props {
 
 export default function ProductRating({ rating }: Props) {
   return (
-    <div className="flex gap-1 text-[#D4AF37]">
+    <div
+      className="
+        flex
+        items-center
+        gap-0.5
+        text-[#C89A2A]
+      "
+      aria-label={`Rated ${rating} out of 5`}
+    >
       {Array.from({ length: 5 }).map((_, i) => (
         <Star
           key={i}
-          size={16}
-          fill={i < rating ? "#D4AF37" : "transparent"}
+          size={15}
+          strokeWidth={1.8}
+          fill={i < rating ? "#C89A2A" : "transparent"}
         />
       ))}
     </div>

@@ -2,32 +2,17 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-
-const navItems = [
-  {
-    title: "Home",
-    href: "/",
-  },
-  {
-    title: "Shop",
-    href: "/shop",
-  },
-  {
-    title: "About",
-    href: "/about",
-  },
-  {
-    title: "Contact",
-    href: "/contact",
-  },
-];
+import { navigation } from "@/constants/navigation";
+import { FiChevronDown } from "react-icons/fi";
+import MegaMenu from "./MegaMenu";
 
 export default function DesktopNav() {
   const pathname = usePathname();
 
   return (
     <nav className="hidden lg:flex items-center gap-10">
-      {navItems.map((item) => {
+
+      {navigation.map((item) => {
         const active = pathname === item.href;
 
         return (
@@ -35,7 +20,12 @@ export default function DesktopNav() {
             key={item.href}
             href={item.href}
             className={`
+              group
               relative
+              flex
+              items-center
+              gap-1
+              py-2
               text-[15px]
               font-medium
               transition-all
@@ -43,18 +33,29 @@ export default function DesktopNav() {
 
               ${
                 active
-                  ? "text-[#C79B2A]"
-                  : "text-[#2B251F] hover:text-[#C79B2A]"
+  ? "text-[#C79B2A] font-semibold"
+  : "text-[#1A1A1A] hover:text-[#C79B2A]"
               }
             `}
           >
             {item.title}
 
+            {item.title === "Shop" && (
+              <FiChevronDown
+                className="
+                  text-sm
+                  transition-transform
+                  duration-300
+                  group-hover:rotate-180
+                "
+              />
+            )}
+
             <span
               className={`
                 absolute
-                -bottom-2
                 left-0
+                -bottom-1
                 h-[2px]
                 bg-[#C79B2A]
                 transition-all
@@ -70,6 +71,7 @@ export default function DesktopNav() {
           </Link>
         );
       })}
+
     </nav>
   );
 }

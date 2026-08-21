@@ -16,51 +16,128 @@ export default function CollectionCard({
 }: Props) {
   return (
     <Link
-      href={slug}
-      className="group relative overflow-hidden rounded-3xl"
+      href={`/collections/${slug}`}
+      className="
+        group
+        relative
+        block
+        aspect-[4/5]
+        overflow-hidden
+        rounded-2xl
+        bg-[#EDE5D8]
+        shadow-sm
+        transition-all
+        duration-500
+        hover:-translate-y-1
+        hover:shadow-xl
+      "
     >
-      <div className="relative aspect-[4/5] overflow-hidden">
+      {/* Image */}
 
-        <Image
-          src={image}
-          alt={title}
-          fill
-          className="
+      <Image
+        src={image}
+        alt={title}
+        fill
+        sizes="
+          (max-width: 768px) 100vw,
+          (max-width: 1280px) 50vw,
+          25vw
+        "
+        className="
           object-cover
           transition-transform
           duration-700
-          group-hover:scale-110
+          ease-out
+          group-hover:scale-105
         "
-        />
+      />
 
-        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+      {/* Soft Image Overlay */}
+
+      <div
+        className="
+          absolute
+          inset-0
+          bg-gradient-to-t
+          from-[#1A1A1A]/75
+          via-[#1A1A1A]/15
+          to-transparent
+          transition-opacity
+          duration-500
+          group-hover:from-[#1A1A1A]/65
+        "
+      />
+
+      {/* Gold Border */}
+
+      <div
+        className="
+          pointer-events-none
+          absolute
+          inset-3
+          rounded-xl
+          border
+          border-white/0
+          transition-all
+          duration-500
+          group-hover:border-[#C89A2A]/80
+        "
+      />
+
+      {/* Content */}
+
+      <div
+        className="
+          absolute
+          inset-x-0
+          bottom-0
+          p-7
+        "
+      >
+        <p
+          className="
+            mb-2
+            text-[10px]
+            font-semibold
+            uppercase
+            tracking-[3px]
+            text-[#E5C76B]
+            opacity-0
+            transition-all
+            duration-500
+            group-hover:translate-y-0
+            group-hover:opacity-100
+          "
+        >
+          Explore
+        </p>
+
+        <h3
+          className="
+            heading-font
+            text-2xl
+            font-semibold
+            text-white
+            transition-transform
+            duration-500
+            group-hover:-translate-y-1
+            md:text-3xl
+          "
+        >
+          {title}
+        </h3>
 
         <div
           className="
-          absolute
-          inset-0
-          border
-          border-[#D4AF37]/0
-          transition-all
-          duration-500
-          group-hover:border-[#D4AF37]/60
-        "
-        />
-
-        <div className="absolute bottom-8 left-8">
-
-          <h3
-            className="
-            heading-font
-            text-3xl
-            text-white
+            mt-3
+            h-px
+            w-0
+            bg-[#C89A2A]
+            transition-all
+            duration-500
+            group-hover:w-12
           "
-          >
-            {title}
-          </h3>
-
-        </div>
-
+        />
       </div>
     </Link>
   );

@@ -21,22 +21,25 @@ export default function FacebookCard({
     <Link
       href={href}
       target="_blank"
+      rel="noopener noreferrer"
       className="
         group
         relative
+        block
         overflow-hidden
         rounded-[28px]
         border
-        border-[#D4AF3715]
-        bg-[#111]
+        border-[#C89A2A]/15
+        bg-[#F5EEE3]
+        shadow-[0_8px_30px_rgba(80,60,30,0.05)]
         transition-all
         duration-500
-        hover:border-[#D4AF37]
-        hover:shadow-[0_20px_60px_rgba(212,175,55,.18)]
+        hover:-translate-y-2
+        hover:border-[#C89A2A]/50
+        hover:shadow-[0_20px_55px_rgba(80,60,30,0.12)]
       "
     >
       <div className="relative aspect-[4/5] overflow-hidden">
-
         <Image
           src={image}
           alt={title}
@@ -45,74 +48,78 @@ export default function FacebookCard({
             object-cover
             transition-transform
             duration-700
-            group-hover:scale-110
+            ease-out
+            group-hover:scale-105
           "
         />
 
-        {/* Dark Gradient */}
+        {/* Image Gradient */}
 
         <div
           className="
             absolute
             inset-0
             bg-gradient-to-t
-            from-black/95
+            from-black/85
             via-black/20
             to-transparent
           "
         />
 
-        {/* Facebook Hover Overlay */}
+        {/* Facebook Hover */}
 
         <div
           className="
             absolute
             inset-0
-            bg-black/40
-            opacity-0
-            group-hover:opacity-100
-            transition-all
-            duration-500
             flex
             items-center
             justify-center
+            bg-black/25
+            opacity-0
+            transition-all
+            duration-500
+            group-hover:opacity-100
           "
         >
           <div
             className="
+              flex
+              h-16
+              w-16
+              items-center
+              justify-center
               rounded-full
               bg-[#1877F2]
-              p-5
-              shadow-xl
-              transition-transform
+              text-white
+              shadow-[0_10px_30px_rgba(24,119,242,0.35)]
+              transition-all
               duration-500
               group-hover:scale-110
             "
           >
-            <FaFacebook
-              size={34}
-              className="text-white"
-            />
+            <FaFacebook size={30} />
           </div>
         </div>
 
-        {/* Card Content */}
+        {/* Content */}
 
-        <div className="absolute bottom-6 left-6 right-6">
-
+        <div className="absolute bottom-0 left-0 right-0 p-6">
           <span
             className="
-              inline-block
+              inline-flex
               rounded-full
               border
-              border-[#D4AF37]
-              bg-black/60
+              border-white/40
+              bg-black/35
               px-4
-              py-1
-              text-xs
+              py-1.5
+              text-[11px]
+              font-semibold
               uppercase
-              tracking-[3px]
-              text-[#D4AF37]
+              tracking-[2.5px]
+              text-white
+              backdrop-blur-sm
             "
           >
             {type}
@@ -123,30 +130,37 @@ export default function FacebookCard({
               heading-font
               mt-4
               text-2xl
-              text-[#F7F3EC]
+              font-semibold
+              leading-tight
+              text-white
             "
           >
             {title}
           </h3>
 
-          <p
+          <div
             className="
-              mt-3
+              mt-4
+              flex
+              items-center
+              gap-2
               text-sm
-              uppercase
-              tracking-[4px]
-              text-[#D4AF37]
+              font-semibold
+              text-[#F1CF72]
               opacity-0
+              translate-y-3
               transition-all
               duration-500
+              group-hover:translate-y-0
               group-hover:opacity-100
             "
           >
-            Discover Story →
-          </p>
-
+            Discover Story
+            <span className="transition-transform duration-500 group-hover:translate-x-1">
+              →
+            </span>
+          </div>
         </div>
-
       </div>
     </Link>
   );

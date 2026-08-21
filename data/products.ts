@@ -2,145 +2,69 @@ import { Product } from "@/types/product";
 
 export const products: Product[] = [
   {
-    id: "1",
+    id: 1,
+    slug: "tiger-eye-meditation-mala",
+    sku: "BMS-001",
 
-    slug: "natural-tiger-eye-mala",
+    name: "Tiger Eye Meditation Mala",
+    shortName: "Tiger Eye Mala",
 
-    name: "Natural Tiger Eye Mala",
-
-    shortDescription:
-      "Premium handcrafted Tiger Eye Buddhist Mala",
-
-    description:
-      "Handcrafted in Nepal using authentic 8 mm natural Tiger Eye gemstones with traditional knotting and guru bead.",
-
-    images: {
-      front: "/products/tiger-eye.jpg",
-
-      back: "/products/tiger-eye-2.jpg",
-
-      gallery: [
-        "/products/tiger-eye.jpg",
-        "/products/tiger-eye-2.jpg",
-        "/products/tiger-eye-3.jpg",
-      ],
-    },
-
-    category: "Gemstone Mala",
+    category: "Gemstone",
+    collection: "Meditation",
 
     material: "Tiger Eye",
-
+    gemstone: "Tiger Eye",
     origin: "Nepal",
 
-    beadSize: 8,
-
+    beadSize: "8mm",
     beadCount: 108,
+    weight: "92g",
 
-    weight: 92,
-
-    price: 5990,
-
-    sku: "BM-TG-108",
-
-    stock: 12,
-
-    inStock: true,
-
-    rating: 4.9,
-
-    reviewCount: 28,
-
-    badge: "Best Seller",
-
-    featured: true,
-
-    color: "Brown",
+    purpose: [
+      "Protection",
+      "Confidence",
+      "Prosperity",
+    ],
 
     chakra: "Solar Plexus",
 
-    benefits: [
-      "Protection",
-      "Confidence",
-      "Grounding",
+    zodiac: [
+      "Leo",
+      "Capricorn",
     ],
 
-    specifications: {
-      thread: "Premium Nylon",
+    element: "Earth",
 
-      guruBead: "Tiger Eye",
+    price: 149,
+    oldPrice: 189,
+    discount: 20,
 
-      knotting: "Traditional Hand Knot",
-    },
-  },
+    rating: 4.9,
+    reviews: 128,
 
-  {
-    id: "2",
-
-    slug: "rose-quartz-mala",
-
-    name: "Rose Quartz Mala",
-
-    shortDescription:
-      "Luxury handcrafted Rose Quartz Mala",
-
-    description:
-      "Traditional Nepalese handcrafted Rose Quartz mala designed for meditation and compassion.",
-
-    images: {
-      front: "/products/rose-quartz.jpg",
-
-      back: "/products/rose-quartz-2.jpg",
-
-      gallery: [
-        "/products/rose-quartz.jpg",
-        "/products/rose-quartz-2.jpg",
-      ],
-    },
-
-    category: "Gemstone Mala",
-
-    material: "Rose Quartz",
-
-    origin: "Nepal",
-
-    beadSize: 8,
-
-    beadCount: 108,
-
-    weight: 88,
-
-    price: 5690,
-
-    sku: "BM-RQ-108",
-
-    stock: 8,
-
-    inStock: true,
-
-    rating: 4.8,
-
-    reviewCount: 17,
-
-    badge: "New",
+    stock: 25,
 
     featured: true,
+    bestSeller: true,
+    newArrival: false,
 
-    color: "Pink",
+    badge: "Best Seller",
 
-    chakra: "Heart",
-
-    benefits: [
-      "Love",
-      "Peace",
-      "Healing",
+    images: [
+      "/products/tiger-eye-1.jpg",
+      "/products/tiger-eye-2.jpg",
     ],
 
-    specifications: {
-      thread: "Premium Nylon",
+    shortDescription:
+      "Authentic handcrafted Tiger Eye Mala.",
 
-      guruBead: "Rose Quartz",
+    description:
+      "Premium handcrafted Tiger Eye meditation mala made in Nepal using natural gemstones and traditional craftsmanship.",
 
-      knotting: "Traditional Hand Knot",
-    },
+    metaTitle:
+      "Tiger Eye Meditation Mala",
+
+    metaDescription:
+      "Handmade Tiger Eye Mala from Nepal.",
   },
 ];

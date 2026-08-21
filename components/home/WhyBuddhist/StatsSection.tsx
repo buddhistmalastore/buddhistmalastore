@@ -4,69 +4,119 @@ import CountUp from "react-countup";
 
 export default function StatsSection() {
   return (
-    <section className="pb-24">
-
+    <section className="px-6 py-16 lg:py-20">
       <div
         className="
-        mx-auto
-        grid
-        max-w-7xl
-        grid-cols-2
-        gap-10
-        md:grid-cols-4
-      "
+          mx-auto
+          grid
+          max-w-7xl
+          grid-cols-2
+          gap-6
+          md:grid-cols-4
+          md:gap-8
+        "
       >
+        {/* Years of Craftsmanship */}
 
-        <div className="text-center">
-
-          <h2 className="text-6xl font-bold text-[#D4AF37]">
+        <div
+          className="
+            rounded-2xl
+            border
+            border-[#E8DFD2]
+            bg-white/70
+            px-5
+            py-8
+            text-center
+            shadow-sm
+            backdrop-blur-sm
+          "
+        >
+          <h2 className="text-4xl font-bold text-[#C89A2A] md:text-5xl lg:text-6xl">
             <CountUp end={30} duration={3} />+
           </h2>
 
-          <p className="mt-4 text-[#D8D3CB]">
+          <p className="mt-4 text-sm font-medium text-[#666666] md:text-base">
             Years of Craftsmanship
           </p>
-
         </div>
 
-        <div className="text-center">
+        {/* Happy Customers */}
 
-          <h2 className="text-6xl font-bold text-[#D4AF37]">
-            <CountUp end={5000} duration={3} separator="," />+
+        <div
+          className="
+            rounded-2xl
+            border
+            border-[#E8DFD2]
+            bg-white/70
+            px-5
+            py-8
+            text-center
+            shadow-sm
+            backdrop-blur-sm
+          "
+        >
+          <h2 className="text-4xl font-bold text-[#C89A2A] md:text-5xl lg:text-6xl">
+            <CountUp
+              end={5000}
+              duration={3}
+              separator=","
+            />
+            +
           </h2>
 
-          <p className="mt-4 text-[#D8D3CB]">
+          <p className="mt-4 text-sm font-medium text-[#666666] md:text-base">
             Happy Customers
           </p>
-
         </div>
 
-        <div className="text-center">
+        {/* Handcrafted */}
 
-          <h2 className="text-6xl font-bold text-[#D4AF37]">
+        <div
+          className="
+            rounded-2xl
+            border
+            border-[#E8DFD2]
+            bg-white/70
+            px-5
+            py-8
+            text-center
+            shadow-sm
+            backdrop-blur-sm
+          "
+        >
+          <h2 className="text-4xl font-bold text-[#C89A2A] md:text-5xl lg:text-6xl">
             100%
           </h2>
 
-          <p className="mt-4 text-[#D8D3CB]">
+          <p className="mt-4 text-sm font-medium text-[#666666] md:text-base">
             Handcrafted
           </p>
-
         </div>
 
-        <div className="text-center">
+        {/* Countries Served */}
 
-          <h2 className="text-6xl font-bold text-[#D4AF37]">
+        <div
+          className="
+            rounded-2xl
+            border
+            border-[#E8DFD2]
+            bg-white/70
+            px-5
+            py-8
+            text-center
+            shadow-sm
+            backdrop-blur-sm
+          "
+        >
+          <h2 className="text-4xl font-bold text-[#C89A2A] md:text-5xl lg:text-6xl">
             50+
           </h2>
 
-          <p className="mt-4 text-[#D8D3CB]">
+          <p className="mt-4 text-sm font-medium text-[#666666] md:text-base">
             Countries Served
           </p>
-
         </div>
-
       </div>
-
     </section>
   );
 }

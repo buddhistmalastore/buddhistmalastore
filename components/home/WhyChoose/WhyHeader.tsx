@@ -9,21 +9,21 @@ export default function WhyHeader() {
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
       transition={{ duration: 0.8 }}
-      className="mx-auto mb-20 max-w-4xl text-center"
+      className="mx-auto mb-16 max-w-4xl text-center"
     >
-      <p className="uppercase tracking-[6px] text-[#D4AF37]">
+      <p className="text-sm font-semibold uppercase tracking-[5px] text-[#B88620]">
         Why Choose Us
       </p>
 
-      <h2 className="heading-font mt-5 text-5xl md:text-6xl text-[#F7F3EC]">
+      <h2 className="heading-font mt-5 text-4xl font-semibold leading-tight text-[#1A1A1A] md:text-6xl">
         Handcrafted Excellence,
         <br />
         Trusted Worldwide
       </h2>
 
-      <p className="mt-8 text-lg leading-9 text-[#CFC7B8]">
-        Every handcrafted mala reflects Nepalese tradition,
-        authentic craftsmanship, and a commitment to exceptional quality.
+      <p className="mx-auto mt-7 max-w-3xl text-lg leading-8 text-[#6F685F]">
+        Every handcrafted mala reflects Nepalese tradition, authentic
+        craftsmanship, and a commitment to exceptional quality.
       </p>
     </motion.div>
   );

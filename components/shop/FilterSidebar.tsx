@@ -4,12 +4,22 @@ interface FilterSidebarProps {
   categories: string[];
   selectedCategory: string;
   setSelectedCategory: (value: string) => void;
+
+  inStockOnly: boolean;
+  setInStockOnly: (value: boolean) => void;
+
+  featuredOnly: boolean;
+  setFeaturedOnly: (value: boolean) => void;
 }
 
 export default function FilterSidebar({
   categories,
   selectedCategory,
   setSelectedCategory,
+  inStockOnly,
+  setInStockOnly,
+  featuredOnly,
+  setFeaturedOnly,
 }: FilterSidebarProps) {
   return (
     <aside
@@ -38,7 +48,6 @@ export default function FilterSidebar({
       {/* Category */}
 
       <div className="mt-8">
-
         <h4
           className="
             mb-4
@@ -53,7 +62,6 @@ export default function FilterSidebar({
         </h4>
 
         <div className="space-y-3">
-
           <button
             onClick={() => setSelectedCategory("")}
             className={`
@@ -79,7 +87,9 @@ export default function FilterSidebar({
           {categories.map((category) => (
             <button
               key={category}
-              onClick={() => setSelectedCategory(category)}
+              onClick={() =>
+                setSelectedCategory(category)
+              }
               className={`
                 block
                 w-full
@@ -100,15 +110,12 @@ export default function FilterSidebar({
               {category}
             </button>
           ))}
-
         </div>
-
       </div>
 
       {/* Availability */}
 
       <div className="mt-10">
-
         <h4
           className="
             mb-4
@@ -122,22 +129,42 @@ export default function FilterSidebar({
           Availability
         </h4>
 
-        <div className="space-y-3">
+        <div className="space-y-4">
+          {/* In Stock */}
 
-          <label className="flex items-center gap-3 cursor-pointer">
-            <input type="checkbox" />
+          <label className="flex cursor-pointer items-center gap-3">
+            <input
+              type="checkbox"
+              checked={inStockOnly}
+              onChange={(event) =>
+                setInStockOnly(
+                  event.target.checked
+                )
+              }
+              className="h-4 w-4 accent-[#C79B2A]"
+            />
+
             <span>In Stock</span>
           </label>
 
-          <label className="flex items-center gap-3 cursor-pointer">
-            <input type="checkbox" />
+          {/* Featured */}
+
+          <label className="flex cursor-pointer items-center gap-3">
+            <input
+              type="checkbox"
+              checked={featuredOnly}
+              onChange={(event) =>
+                setFeaturedOnly(
+                  event.target.checked
+                )
+              }
+              className="h-4 w-4 accent-[#C79B2A]"
+            />
+
             <span>Featured</span>
           </label>
-
         </div>
-
       </div>
-
     </aside>
   );
 }

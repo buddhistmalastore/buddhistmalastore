@@ -1,28 +1,39 @@
-import { ButtonHTMLAttributes } from "react";
+"use client";
 
-interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: "primary" | "secondary";
+import { ButtonHTMLAttributes } from "react";
+import clsx from "clsx";
+
+interface ButtonProps
+  extends ButtonHTMLAttributes<HTMLButtonElement> {
+  variant?: "primary" | "secondary" | "outline";
+  fullWidth?: boolean;
 }
 
 export default function Button({
-  variant = "primary",
-  className = "",
   children,
+  variant = "primary",
+  fullWidth = false,
+  className,
   ...props
 }: ButtonProps) {
-  const base =
-    "rounded-2xl px-6 py-3 font-medium transition-all duration-300";
-
-  const styles = {
-    primary:
-      "bg-[#C8A951] text-white hover:bg-[#B5933F] shadow-md hover:shadow-lg",
-    secondary:
-      "border border-[#6F4E37] text-[#6F4E37] hover:bg-[#6F4E37] hover:text-white",
-  };
-
   return (
     <button
-      className={`${base} ${styles[variant]} ${className}`}
+      className={clsx(
+        "inline-flex items-center justify-center rounded-full px-6 py-3 text-sm font-semibold transition-all duration-300",
+
+        fullWidth && "w-full",
+
+        variant === "primary" &&
+          "bg-[#C79B2A] text-[#1A1A1A] hover:bg-[#D6AE4A] hover:-translate-y-1 shadow-lg",
+
+        variant === "secondary" &&
+          "bg-[#1A1A1A] text-white hover:bg-black",
+
+        variant === "outline" &&
+          "border border-[#C79B2A] bg-white text-[#1A1A1A] hover:bg-[#C79B2A] hover:text-white",
+
+        className
+      )}
       {...props}
     >
       {children}

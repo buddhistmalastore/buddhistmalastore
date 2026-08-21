@@ -11,16 +11,16 @@ export default function CraftHeader() {
       transition={{ duration: 0.8 }}
       className="mx-auto mb-24 max-w-4xl text-center"
     >
-      <p className="uppercase tracking-[6px] text-[#D4AF37]">
+      <p className="uppercase tracking-[6px] !text-[#B88620]">
         The Art of Handcrafting
       </p>
 
-      <h2 className="heading-font mt-5 text-5xl md:text-6xl text-[#F7F3EC]">
+      <h2 className="heading-font mt-5 text-5xl !text-[#29251F] md:text-6xl">
         Every Mala Has A Story
       </h2>
 
-      <p className="mt-8 text-lg leading-9 text-[#CFC7B8]">
-        From carefully selected Himalayan gemstones to the final blessing
+      <p className="mt-8 text-lg leading-9 !text-[#6B6257]">
+        From carefully selected natural gemstones to the final blessing
         before delivery, every mala is handcrafted with devotion by skilled
         Nepalese artisans.
       </p>

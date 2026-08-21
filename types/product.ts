@@ -1,75 +1,62 @@
 export interface Product {
-  id: string;
-
+  id: number;
   slug: string;
 
+  // Basic
   name: string;
-
-  shortDescription: string;
-
-  description: string;
-
-  /* Images */
-
-  images: {
-    front: string;
-    back: string;
-    gallery: string[];
-  };
-
-  /* Category */
-
-  category: string;
-
-  material: string;
-
-  origin: string;
-
-  /* Beads */
-
-  beadSize: number;
-
-  beadCount: number;
-
-  weight: number;
-
-  /* Price */
-
-  price: number;
-
-  salePrice?: number;
-
-  /* Inventory */
-
+  shortName?: string;
   sku: string;
 
-  stock: number;
+  // Categories
+  category: string;
+  collection: string;
 
-  inStock: boolean;
+  // Material
+  material: string;
+  gemstone: string;
+  origin: string;
 
-  /* Reviews */
+  // Beads
+  beadSize: string;
+  beadCount: number;
+  weight?: string;
 
-  rating: number;
-
-  reviewCount: number;
-
-  /* Labels */
-
-  badge?: "New" | "Best Seller" | "Limited" | "Sale";
-
-  featured: boolean;
-
-  /* Product Details */
-
-  color?: string;
-
+  // Spiritual
+  purpose: string[];
   chakra?: string;
+  zodiac?: string[];
+  element?: string;
 
-  benefits?: string[];
+  // Pricing
+  price: number;
+  oldPrice?: number;
+  discount?: number;
 
-  specifications?: {
-    thread: string;
-    guruBead: string;
-    knotting: string;
-  };
+  // Reviews
+  rating: number;
+  reviews: number;
+
+  // Inventory
+  stock: number;
+  featured: boolean;
+  bestSeller: boolean;
+  newArrival: boolean;
+
+  badge?:
+  | "New"
+  | "Best Seller"
+  | "Limited"
+  | "Handmade"
+  | "Sale";
+
+  // Images
+  images: string[];
+
+  // Description
+  shortDescription: string;
+  description: string;
+
+  // SEO
+  metaTitle?: string;
+  metaDescription?: string;
 }

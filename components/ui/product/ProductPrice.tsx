@@ -1,31 +1,25 @@
-"use client";
+﻿"use client";
 
 interface ProductPriceProps {
   price: number;
-  salePrice?: number;
+  oldPrice?: number;
+  discount?: number;
 }
 
 export default function ProductPrice({
   price,
-  salePrice,
+  oldPrice,
+  discount,
 }: ProductPriceProps) {
   const hasSale =
-    salePrice !== undefined &&
-    salePrice < price;
-
-  const discount = hasSale
-    ? Math.round(((price - salePrice!) / price) * 100)
-    : 0;
+    oldPrice !== undefined &&
+    oldPrice > price;
 
   return (
     <div className="flex items-end justify-between">
-
       <div className="flex items-center gap-3">
-
         {hasSale ? (
           <>
-            {/* Sale Price */}
-
             <span
               className="
                 text-[28px]
@@ -34,10 +28,8 @@ export default function ProductPrice({
                 text-[#1F1A17]
               "
             >
-              Rs. {salePrice.toLocaleString()}
+              Rs. {price.toLocaleString()}
             </span>
-
-            {/* Original Price */}
 
             <span
               className="
@@ -46,7 +38,7 @@ export default function ProductPrice({
                 line-through
               "
             >
-              Rs. {price.toLocaleString()}
+              Rs. {oldPrice.toLocaleString()}
             </span>
           </>
         ) : (
@@ -63,8 +55,6 @@ export default function ProductPrice({
         )}
       </div>
 
-      {/* Discount */}
-
       {hasSale && (
         <span
           className="
@@ -79,7 +69,10 @@ export default function ProductPrice({
             text-[#8A5A00]
           "
         >
-          {discount}% OFF
+          {discount ??
+            Math.round(
+              ((oldPrice - price) / oldPrice) * 100
+            )}% OFF
         </span>
       )}
     </div>

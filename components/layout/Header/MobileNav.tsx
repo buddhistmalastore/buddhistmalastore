@@ -2,10 +2,28 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { FiMenu, FiX } from "react-icons/fi";
+import {
+  FiMenu,
+  FiX,
+  FiHome,
+  FiShoppingBag,
+  FiHeart,
+  FiUser,
+  FiInfo,
+  FiMail,
+} from "react-icons/fi";
 
 export default function MobileNav() {
   const [open, setOpen] = useState(false);
+
+  const links = [
+    { href: "/", label: "Home", icon: <FiHome size={20} /> },
+    { href: "/shop", label: "Shop", icon: <FiShoppingBag size={20} /> },
+    { href: "/about", label: "About", icon: <FiInfo size={20} /> },
+    { href: "/contact", label: "Contact", icon: <FiMail size={20} /> },
+    { href: "/wishlist", label: "Wishlist", icon: <FiHeart size={20} /> },
+    { href: "/account", label: "My Account", icon: <FiUser size={20} /> },
+  ];
 
   return (
     <>
@@ -13,84 +31,159 @@ export default function MobileNav() {
 
       <button
         onClick={() => setOpen(true)}
-        className="lg:hidden"
+        className="
+          lg:hidden
+          flex
+          h-11
+          w-11
+          items-center
+          justify-center
+          rounded-full
+          border
+          border-[#E8DFD2]
+          bg-white
+          transition-all
+          duration-300
+          hover:border-[#C79B2A]
+          hover:bg-[#C79B2A]
+          hover:text-white
+        "
         aria-label="Open Menu"
       >
-        <FiMenu size={28} />
+        <FiMenu size={22} />
       </button>
 
       {/* Overlay */}
 
-      {open && (
-        <div
-          className="fixed inset-0 z-40 bg-black/50"
-          onClick={() => setOpen(false)}
-        />
-      )}
+      <div
+        onClick={() => setOpen(false)}
+        className={`
+          fixed
+          inset-0
+          z-[98]
+          bg-black/40
+          transition-all
+          duration-300
+
+          ${
+            open
+              ? "visible opacity-100"
+              : "invisible opacity-0"
+          }
+        `}
+      />
 
       {/* Drawer */}
 
       <aside
         className={`
           fixed
-          top-0
           right-0
-          z-50
-          h-full
-          w-[300px]
+          top-0
+          z-[99]
+          flex
+          h-screen
+          w-[330px]
+          flex-col
           bg-white
           shadow-2xl
           transition-transform
-          duration-300
+          duration-500
 
-          ${open ? "translate-x-0" : "translate-x-full"}
+          ${
+            open
+              ? "translate-x-0"
+              : "translate-x-full"
+          }
         `}
       >
-        <div className="flex items-center justify-between border-b p-6">
+        {/* Header */}
 
-          <h2 className="heading-font text-xl text-[#C79B2A]">
-            Menu
-          </h2>
+        <div className="flex items-center justify-between border-b px-6 py-6">
+
+          <div>
+
+            <h2 className="heading-font text-3xl text-[#1A1A1A]">
+              Menu
+            </h2>
+
+            <p className="mt-1 text-sm text-[#8C8479]">
+              Buddhist Mala Store
+            </p>
+
+          </div>
 
           <button
             onClick={() => setOpen(false)}
+            className="rounded-full p-2 hover:bg-[#F5F2ED]"
           >
-            <FiX size={26} />
+            <FiX size={24} />
           </button>
 
         </div>
 
-        <nav className="flex flex-col p-6">
+        {/* Navigation */}
 
-          <Link href="/" className="py-3" onClick={() => setOpen(false)}>
-            Home
-          </Link>
+        <nav className="flex-1 px-6 py-5">
 
-          <Link href="/shop" className="py-3" onClick={() => setOpen(false)}>
-            Shop
-          </Link>
+          {links.map((item) => (
+            <Link
+              key={item.href}
+              href={item.href}
+              onClick={() => setOpen(false)}
+              className="
+                flex
+                items-center
+                gap-4
+                rounded-xl
+                px-4
+                py-4
+                text-[17px]
+                font-medium
+                text-[#1A1A1A]
+                transition-all
+                duration-300
+                hover:bg-[#F8F4ED]
+                hover:text-[#C79B2A]
+              "
+            >
+              {item.icon}
 
-          <Link href="/about" className="py-3" onClick={() => setOpen(false)}>
-            About
-          </Link>
-
-          <Link href="/contact" className="py-3" onClick={() => setOpen(false)}>
-            Contact
-          </Link>
-
-          <Link href="/wishlist" className="py-3" onClick={() => setOpen(false)}>
-            Wishlist
-          </Link>
-
-          <Link href="/cart" className="py-3" onClick={() => setOpen(false)}>
-            Cart
-          </Link>
-
-          <Link href="/account" className="py-3" onClick={() => setOpen(false)}>
-            Account
-          </Link>
+              {item.label}
+            </Link>
+          ))}
 
         </nav>
+
+        {/* Bottom */}
+
+        <div className="border-t p-6">
+
+          <Link
+            href="/cart"
+            onClick={() => setOpen(false)}
+            className="
+              flex
+              items-center
+              justify-center
+              gap-3
+              rounded-full
+              bg-[#1A1A1A]
+              py-4
+              font-semibold
+              text-white
+              transition-all
+              duration-300
+              hover:bg-[#C79B2A]
+            "
+          >
+            <FiShoppingBag />
+
+            View Cart
+          </Link>
+
+        </div>
+
       </aside>
     </>
   );

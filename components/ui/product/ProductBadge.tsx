@@ -1,16 +1,20 @@
-"use client";
+﻿"use client";
 
 import { motion } from "framer-motion";
 
 interface ProductBadgeProps {
-  badge?: "New" | "Best Seller" | "Limited" | "Sale";
+  badge?: "New" | "Best Seller" | "Limited" | "Sale" | "Handmade";
 }
 
-const badgeColors = {
+const badgeColors: Record<
+  NonNullable<ProductBadgeProps["badge"]>,
+  string
+> = {
   New: "bg-[#1F6B52]",
   "Best Seller": "bg-[#C79B2A]",
   Limited: "bg-[#7B1E1E]",
   Sale: "bg-[#B86A00]",
+  Handmade: "bg-[#8A6A3A]",
 };
 
 export default function ProductBadge({

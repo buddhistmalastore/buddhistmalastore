@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { motion } from "framer-motion";
 
@@ -59,8 +59,8 @@ export default function ProductCard({
       {/* Product Image */}
 
       <ProductImage
-        frontImage={product.images.front}
-        backImage={product.images.back}
+        frontImage={product.images[0]}
+        backImage={product.images[1] ?? product.images[0]}
         name={product.name}
       />
 
