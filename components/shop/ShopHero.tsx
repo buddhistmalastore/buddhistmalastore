@@ -14,30 +14,34 @@ export default function ShopHero() {
   return (
     <section className="relative overflow-hidden rounded-[40px] shadow-xl">
 
-      {/* Background */}
+      {/* =========================
+          BACKGROUND IMAGE
+      ========================== */}
 
       <div className="relative h-[620px] w-full">
 
         <Image
           src="/images/shop/shop-hero.jpg"
-          alt="Buddhist Mala Collection"
+          alt="Buddhist Mala and Handcrafted Collection"
           fill
           priority
-          className="object-cover object-center scale-105"
+          sizes="100vw"
+          className="object-cover object-center"
         />
 
-        {/* Overlay */}
+        {/* Dark Luxury Overlay */}
+        <div className="absolute inset-0 bg-gradient-to-r from-black/85 via-black/55 to-black/20" />
 
-        <div className="absolute inset-0 bg-gradient-to-r from-[#050505]/80 via-[#111111]/55 to-[#111111]/20" />
-
-        {/* Decorative Glow */}
-
+        {/* Warm Golden Glow */}
         <div className="absolute -left-32 top-24 h-80 w-80 rounded-full bg-[#C79B2A]/20 blur-[130px]" />
 
         <div className="absolute bottom-0 right-0 h-80 w-80 rounded-full bg-[#C79B2A]/10 blur-[120px]" />
+
       </div>
 
-      {/* Content */}
+      {/* =========================
+          HERO CONTENT
+      ========================== */}
 
       <div className="absolute inset-0 flex items-center">
 
@@ -46,13 +50,11 @@ export default function ShopHero() {
           <motion.div
             initial={{ opacity: 0, y: 35 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: .8 }}
+            transition={{ duration: 0.8 }}
             className="max-w-3xl"
           >
 
-            <span className="inline-flex rounded-full border border-[#C79B2A]/40 bg-[#C79B2A]/10 px-5 py-2 text-sm uppercase tracking-[4px] text-[#E9D29B] backdrop-blur">
-              Since 2005
-            </span>
+            {/* Heading */}
 
             <h1 className="heading-font mt-8 text-6xl leading-tight text-white lg:text-7xl">
 
@@ -64,6 +66,8 @@ export default function ShopHero() {
 
             </h1>
 
+            {/* Description */}
+
             <p className="mt-8 max-w-2xl text-lg leading-9 text-white/85">
 
               Explore authentic Buddhist malas,
@@ -73,6 +77,8 @@ export default function ShopHero() {
 
             </p>
 
+            {/* Buttons */}
+
             <div className="mt-10 flex flex-wrap gap-5">
 
               <Link
@@ -80,7 +86,6 @@ export default function ShopHero() {
                 className="inline-flex items-center gap-3 rounded-full bg-[#C79B2A] px-8 py-4 text-lg font-semibold text-[#1A1A1A] transition hover:scale-105 hover:bg-[#D6AE4A]"
               >
                 Explore Collection
-
                 <FiArrowRight />
               </Link>
 
@@ -93,7 +98,9 @@ export default function ShopHero() {
 
             </div>
 
-            {/* Trust */}
+            {/* =========================
+                TRUST FEATURES
+            ========================== */}
 
             <div className="mt-16 flex flex-wrap gap-10">
 
@@ -124,6 +131,11 @@ export default function ShopHero() {
   );
 }
 
+
+/* =========================
+   TRUST ITEM
+========================= */
+
 function Trust({
   icon,
   title,
@@ -135,19 +147,13 @@ function Trust({
     <div className="flex items-center gap-4">
 
       <div className="flex h-14 w-14 items-center justify-center rounded-full border border-white/20 bg-white/10 text-2xl text-[#D6AE4A] backdrop-blur-md">
-
         {icon}
-
       </div>
 
       <div>
-
         <h4 className="font-semibold text-white">
-
           {title}
-
         </h4>
-
       </div>
 
     </div>
