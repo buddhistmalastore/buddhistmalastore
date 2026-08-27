@@ -28,7 +28,7 @@ export const shopLinks = [
   },
   {
     title: "Gemstones",
-    href: "/collections/gemstones",
+    href: "/gemstones",
   },
   {
     title: "Rudraksha",
@@ -52,6 +52,10 @@ export const supportLinks = [
   {
     title: "Contact",
     href: "/contact",
+  },
+  {
+    title: "Track Order",
+    href: "/account/orders",
   },
   {
     title: "Shipping",

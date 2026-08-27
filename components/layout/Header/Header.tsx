@@ -14,7 +14,15 @@ export default function Header() {
 
   return (
     <>
+      {/* ================================================= */}
+      {/* TOP BAR */}
+      {/* ================================================= */}
+
       <TopBar />
+
+      {/* ================================================= */}
+      {/* MAIN HEADER */}
+      {/* ================================================= */}
 
       <header
         className={`
@@ -27,7 +35,7 @@ export default function Header() {
 
           ${
             scrolled
-              ? "bg-white/95 backdrop-blur-2xl border-b border-[#E8DFD2] shadow-lg"
+              ? "border-b border-[#E8DFD2] bg-white/95 shadow-lg backdrop-blur-2xl"
               : "bg-[#FAF8F4]/95 backdrop-blur-xl"
           }
         `}
@@ -36,22 +44,50 @@ export default function Header() {
           className="
             mx-auto
             flex
-            h-24
+            h-[76px]
             max-w-[1500px]
             items-center
             justify-between
-            px-6
+            px-4
+            sm:px-6
+            lg:h-24
             lg:px-10
           "
         >
+          {/* ================================================= */}
+          {/* LOGO */}
+          {/* ================================================= */}
+
           <Logo />
+
+          {/* ================================================= */}
+          {/* DESKTOP NAV */}
+          {/* ================================================= */}
 
           <DesktopNav />
 
-          <div className="flex items-center gap-5">
+          {/* ================================================= */}
+          {/* ACTIONS */}
+          {/* ================================================= */}
+
+          <div
+            className="
+              flex
+              items-center
+              gap-2
+              sm:gap-3
+              lg:gap-5
+            "
+          >
+            {/* Currency */}
+
             <CurrencySelector />
 
+            {/* Desktop Search / Wishlist / Account / Cart */}
+
             <NavIcons />
+
+            {/* Mobile Menu */}
 
             <MobileNav />
           </div>

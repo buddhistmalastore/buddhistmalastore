@@ -10,10 +10,11 @@ export default function Hero() {
     <section
       className="
         relative
-        min-h-[calc(100vh-96px)]
+        min-h-[calc(100svh-76px)]
         overflow-hidden
         bg-[#FAF8F4]
         text-[#1A1A1A]
+        lg:min-h-[calc(100vh-96px)]
       "
     >
       {/* Hero Background */}

@@ -3,57 +3,62 @@
 import { useEffect, useRef, useState } from "react";
 import { Globe2, Check, ChevronDown } from "lucide-react";
 
+import {
+  LanguageCode,
+  useLanguage,
+} from "@/context/LanguageContext";
+
 const languages = [
   {
-    code: "en",
+    code: "en" as LanguageCode,
     name: "English",
     nativeName: "English",
     flag: "🇬🇧",
   },
   {
-    code: "ne",
+    code: "ne" as LanguageCode,
     name: "Nepali",
     nativeName: "नेपाली",
     flag: "🇳🇵",
   },
   {
-    code: "hi",
+    code: "hi" as LanguageCode,
     name: "Hindi",
     nativeName: "हिन्दी",
     flag: "🇮🇳",
   },
   {
-    code: "zh",
+    code: "zh" as LanguageCode,
     name: "Chinese",
     nativeName: "中文",
     flag: "🇨🇳",
   },
   {
-    code: "ja",
+    code: "ja" as LanguageCode,
     name: "Japanese",
     nativeName: "日本語",
     flag: "🇯🇵",
   },
   {
-    code: "ko",
+    code: "ko" as LanguageCode,
     name: "Korean",
     nativeName: "한국어",
     flag: "🇰🇷",
   },
   {
-    code: "fr",
+    code: "fr" as LanguageCode,
     name: "French",
     nativeName: "Français",
     flag: "🇫🇷",
   },
   {
-    code: "de",
+    code: "de" as LanguageCode,
     name: "German",
     nativeName: "Deutsch",
     flag: "🇩🇪",
   },
   {
-    code: "es",
+    code: "es" as LanguageCode,
     name: "Spanish",
     nativeName: "Español",
     flag: "🇪🇸",
@@ -62,61 +67,75 @@ const languages = [
 
 export default function LanguageSelector() {
   const [open, setOpen] = useState(false);
-  const [language, setLanguage] = useState("en");
 
-  const selectorRef = useRef<HTMLDivElement>(null);
+  const {
+    language,
+    setLanguage,
+    t,
+  } = useLanguage();
+
+  const selectorRef =
+    useRef<HTMLDivElement>(null);
 
   const currentLanguage =
-    languages.find((item) => item.code === language) || languages[0];
+    languages.find(
+      (item) => item.code === language
+    ) || languages[0];
 
   useEffect(() => {
-    const savedLanguage = localStorage.getItem("site-language");
-
-    if (savedLanguage && languages.some((item) => item.code === savedLanguage)) {
-      setLanguage(savedLanguage);
-    }
-  }, []);
+    document.documentElement.lang =
+      language;
+  }, [language]);
 
   useEffect(() => {
-    function handleClickOutside(event: MouseEvent) {
+    function handleClickOutside(
+      event: MouseEvent
+    ) {
       if (
         selectorRef.current &&
-        !selectorRef.current.contains(event.target as Node)
+        !selectorRef.current.contains(
+          event.target as Node
+        )
       ) {
         setOpen(false);
       }
     }
 
-    document.addEventListener("mousedown", handleClickOutside);
+    document.addEventListener(
+      "mousedown",
+      handleClickOutside
+    );
 
     return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener(
+        "mousedown",
+        handleClickOutside
+      );
     };
   }, []);
 
-  function selectLanguage(code: string) {
+  function selectLanguage(
+    code: LanguageCode
+  ) {
     setLanguage(code);
-    localStorage.setItem("site-language", code);
     setOpen(false);
-
-    /*
-      English is the master language.
-
-      Translation system will be connected here next.
-      For now the selected language is persisted so
-      the site remembers the customer's choice.
-    */
   }
 
   return (
-    <div ref={selectorRef} className="relative">
+    <div
+      ref={selectorRef}
+      className="relative"
+    >
       {/* Selector Button */}
 
       <button
         type="button"
-        onClick={() => setOpen((value) => !value)}
+        onClick={() =>
+          setOpen((value) => !value)
+        }
         aria-expanded={open}
         aria-haspopup="listbox"
+        aria-label={t("topbar.selectLanguage")}
         className="
           flex
           items-center
@@ -128,9 +147,14 @@ export default function LanguageSelector() {
           hover:text-[#B88620]
         "
       >
-        <Globe2 size={16} strokeWidth={1.8} />
+        <Globe2
+          size={16}
+          strokeWidth={1.8}
+        />
 
-        <span>{currentLanguage.nativeName}</span>
+        <span>
+          {currentLanguage.nativeName}
+        </span>
 
         <ChevronDown
           size={13}
@@ -145,6 +169,7 @@ export default function LanguageSelector() {
       {open && (
         <div
           role="listbox"
+          aria-label={t("topbar.selectLanguage")}
           className="
             absolute
             right-0
@@ -163,16 +188,26 @@ export default function LanguageSelector() {
           {/* Dropdown Header */}
 
           <div className="px-3 pb-2 pt-2">
-  <p className="text-[10px] font-semibold uppercase tracking-[2px] text-[#B88620]">
-    Select Language
-  </p>
-</div>
+            <p
+              className="
+                text-[10px]
+                font-semibold
+                uppercase
+                tracking-[2px]
+                text-[#B88620]
+              "
+            >
+              {t("topbar.selectLanguage")}
+            </p>
+          </div>
+
           <div className="my-1 h-px bg-[#E9E2D8]" />
 
           {/* Languages */}
 
           {languages.map((item) => {
-            const selected = item.code === language;
+            const selected =
+              item.code === language;
 
             return (
               <button
@@ -180,7 +215,9 @@ export default function LanguageSelector() {
                 type="button"
                 role="option"
                 aria-selected={selected}
-                onClick={() => selectLanguage(item.code)}
+                onClick={() =>
+                  selectLanguage(item.code)
+                }
                 className={`
                   flex
                   w-full
@@ -199,7 +236,9 @@ export default function LanguageSelector() {
                   }
                 `}
               >
-                <span className="text-lg">{item.flag}</span>
+                <span className="text-lg">
+                  {item.flag}
+                </span>
 
                 <span className="flex flex-1 flex-col">
                   <span className="text-sm font-medium">

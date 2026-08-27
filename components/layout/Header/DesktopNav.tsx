@@ -4,14 +4,12 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { navigation } from "@/constants/navigation";
 import { FiChevronDown } from "react-icons/fi";
-import MegaMenu from "./MegaMenu";
 
 export default function DesktopNav() {
   const pathname = usePathname();
 
   return (
     <nav className="hidden lg:flex items-center gap-10">
-
       {navigation.map((item) => {
         const active = pathname === item.href;
 
@@ -30,11 +28,10 @@ export default function DesktopNav() {
               font-medium
               transition-all
               duration-300
-
               ${
                 active
-  ? "text-[#C79B2A] font-semibold"
-  : "text-[#1A1A1A] hover:text-[#C79B2A]"
+                  ? "text-[#C79B2A] font-semibold"
+                  : "text-[#1A1A1A] hover:text-[#C79B2A]"
               }
             `}
           >
@@ -60,7 +57,6 @@ export default function DesktopNav() {
                 bg-[#C79B2A]
                 transition-all
                 duration-300
-
                 ${
                   active
                     ? "w-full"
@@ -71,7 +67,6 @@ export default function DesktopNav() {
           </Link>
         );
       })}
-
     </nav>
   );
 }

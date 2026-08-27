@@ -6,41 +6,46 @@ import Link from "next/link";
 interface Props {
   title: string;
   image: string;
-  slug: string;
+  collection: string;
 }
 
 export default function CollectionCard({
   title,
   image,
-  slug,
+  collection,
 }: Props) {
   return (
     <Link
-      href={`/collections/${slug}`}
+      href={`/shop?collection=${encodeURIComponent(collection)}`}
       className="
         group
         relative
         block
         aspect-[4/5]
         overflow-hidden
-        rounded-2xl
+        rounded-xl
         bg-[#EDE5D8]
         shadow-sm
         transition-all
         duration-500
+        active:scale-[0.98]
         hover:-translate-y-1
         hover:shadow-xl
+        sm:rounded-2xl
       "
     >
-      {/* Image */}
+      {/* ================================================= */}
+      {/* IMAGE */}
+      {/* ================================================= */}
 
       <Image
         src={image}
         alt={title}
         fill
         sizes="
-          (max-width: 768px) 100vw,
-          (max-width: 1280px) 50vw,
+          (max-width: 639px) 50vw,
+          (max-width: 1023px) 50vw,
+          (max-width: 1279px) 33vw,
           25vw
         "
         className="
@@ -52,90 +57,114 @@ export default function CollectionCard({
         "
       />
 
-      {/* Soft Image Overlay */}
+      {/* ================================================= */}
+      {/* OVERLAY */}
+      {/* ================================================= */}
 
       <div
         className="
           absolute
           inset-0
           bg-gradient-to-t
-          from-[#1A1A1A]/75
-          via-[#1A1A1A]/15
+          from-[#1A1A1A]/80
+          via-[#1A1A1A]/20
           to-transparent
-          transition-opacity
+          transition-all
           duration-500
-          group-hover:from-[#1A1A1A]/65
+          group-hover:from-[#1A1A1A]/70
         "
       />
 
-      {/* Gold Border */}
+      {/* ================================================= */}
+      {/* GOLD BORDER */}
+      {/* ================================================= */}
 
       <div
         className="
           pointer-events-none
           absolute
-          inset-3
-          rounded-xl
+          inset-2
+          rounded-lg
           border
           border-white/0
           transition-all
           duration-500
           group-hover:border-[#C89A2A]/80
+          sm:inset-3
+          sm:rounded-xl
         "
       />
 
-      {/* Content */}
+      {/* ================================================= */}
+      {/* CONTENT */}
+      {/* ================================================= */}
 
       <div
         className="
           absolute
           inset-x-0
           bottom-0
-          p-7
+          p-3
+          sm:p-5
+          md:p-7
         "
       >
+        {/* Explore */}
+
         <p
           className="
-            mb-2
-            text-[10px]
+            mb-1
+            text-[8px]
             font-semibold
             uppercase
-            tracking-[3px]
+            tracking-[2px]
             text-[#E5C76B]
-            opacity-0
-            transition-all
-            duration-500
-            group-hover:translate-y-0
-            group-hover:opacity-100
+            opacity-100
+            sm:mb-2
+            sm:text-[10px]
+            sm:tracking-[3px]
+            sm:opacity-0
+            sm:transition-all
+            sm:duration-500
+            sm:group-hover:translate-y-0
+            sm:group-hover:opacity-100
           "
         >
           Explore
         </p>
 
+        {/* Title */}
+
         <h3
           className="
             heading-font
-            text-2xl
+            text-[17px]
             font-semibold
+            leading-tight
             text-white
             transition-transform
             duration-500
-            group-hover:-translate-y-1
+            sm:text-2xl
             md:text-3xl
+            sm:group-hover:-translate-y-1
           "
         >
           {title}
         </h3>
 
+        {/* Gold Line */}
+
         <div
           className="
-            mt-3
+            mt-2
             h-px
-            w-0
+            w-8
             bg-[#C89A2A]
             transition-all
             duration-500
-            group-hover:w-12
+            sm:mt-3
+            sm:w-0
+            sm:group-hover:w-12
           "
         />
       </div>

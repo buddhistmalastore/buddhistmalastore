@@ -1,22 +1,39 @@
 "use client";
 
+import Link from "next/link";
+
 export default function HeroButtons() {
   return (
-    <div className="flex flex-wrap items-center gap-4">
-
+    <div
+      className="
+        flex
+        w-full
+        flex-col
+        gap-3
+        sm:w-auto
+        sm:flex-row
+        sm:items-center
+        sm:gap-4
+      "
+    >
       {/* =====================================================
           EXPLORE COLLECTION
       ===================================================== */}
 
-      <button
+      <Link
+        href="/shop"
         className="
           group
           relative
+          flex
+          w-full
+          items-center
+          justify-center
           overflow-hidden
           rounded-full
           bg-[#C89A2A]
-          px-9
-          py-4
+          px-7
+          py-3.5
           text-sm
           font-semibold
           tracking-wide
@@ -27,14 +44,17 @@ export default function HeroButtons() {
           hover:-translate-y-1
           hover:bg-[#D8AA3D]
           hover:shadow-[0_18px_45px_rgba(200,154,42,0.35)]
+          sm:w-auto
+          sm:px-9
+          sm:py-4
           md:px-10
-          md:py-4
         "
       >
         <span className="relative z-10 flex items-center gap-3">
-          Explore Collection
+          <span>Explore Collection</span>
 
           <span
+            aria-hidden="true"
             className="
               text-lg
               transition-transform
@@ -45,21 +65,26 @@ export default function HeroButtons() {
             →
           </span>
         </span>
-      </button>
+      </Link>
 
       {/* =====================================================
           DISCOVER OUR STORY
       ===================================================== */}
 
-      <button
+      <Link
+        href="/about"
         className="
           group
+          flex
+          w-full
+          items-center
+          justify-center
           rounded-full
           border
           border-[#E1B94F]/70
           bg-black/20
-          px-9
-          py-4
+          px-7
+          py-3.5
           text-sm
           font-semibold
           tracking-wide
@@ -73,14 +98,17 @@ export default function HeroButtons() {
           hover:bg-[#C89A2A]
           hover:text-white
           hover:shadow-[0_12px_35px_rgba(200,154,42,0.25)]
+          sm:w-auto
+          sm:px-9
+          sm:py-4
           md:px-10
-          md:py-4
         "
       >
         <span className="flex items-center gap-3">
-          Discover Our Story
+          <span>Discover Our Story</span>
 
           <span
+            aria-hidden="true"
             className="
               transition-transform
               duration-500
@@ -90,8 +118,7 @@ export default function HeroButtons() {
             →
           </span>
         </span>
-      </button>
-
+      </Link>
     </div>
   );
 }

@@ -18,44 +18,34 @@ export default function PurposeCard({
   index,
 }: Props) {
   /*
-   * Seven cards arranged around the Dharma Wheel.
-   *
-   *        1
-   *     2     3
-   *   4         5
-   *      6   7
+   * These positions are ONLY used on desktop.
+   * Mobile and tablet use a normal CSS grid.
    */
-
-  const positions = [
-    // 1 — Prosperity
-    "left-1/2 top-[3%] -translate-x-1/2",
-
-    // 2 — Love & Compassion
-    "left-[13%] top-[22%]",
-
-    // 3 — Meditation
-    "right-[13%] top-[22%]",
-
-    // 4 — Protection
-    "left-[4%] top-[50%]",
-
-    // 5 — Healing
-    "right-[4%] top-[50%]",
-
-    // 6 — Prayer
-    "left-[27%] bottom-[5%]",
-
-    // 7 — Gift Collection
-    "right-[27%] bottom-[5%]",
+  const desktopPositions = [
+    "lg:left-1/2 lg:top-[3%] lg:-translate-x-1/2",
+    "lg:left-[13%] lg:top-[22%]",
+    "lg:right-[13%] lg:top-[22%]",
+    "lg:left-[4%] lg:top-[50%]",
+    "lg:right-[4%] lg:top-[50%]",
+    "lg:left-[27%] lg:bottom-[5%]",
+    "lg:right-[27%] lg:bottom-[5%]",
   ];
 
   return (
     <motion.div
-      className={`absolute z-20 ${positions[index]}`}
+      className={`
+        relative
+        z-20
+        w-full
+        ${desktopPositions[index]}
+
+        lg:absolute
+        lg:w-auto
+      `}
       initial={{
         opacity: 0,
-        scale: 0.8,
-        y: 20,
+        scale: 0.9,
+        y: 15,
       }}
       whileInView={{
         opacity: 1,
@@ -67,8 +57,8 @@ export default function PurposeCard({
         amount: 0.15,
       }}
       transition={{
-        duration: 0.65,
-        delay: index * 0.08,
+        duration: 0.6,
+        delay: index * 0.06,
         ease: [0.22, 1, 0.36, 1],
       }}
     >
@@ -76,15 +66,15 @@ export default function PurposeCard({
         href={`/shop?purpose=${encodeURIComponent(
           slug.split("/").pop() || ""
         )}`}
-        className="block"
+        className="block w-full lg:w-auto"
       >
         <motion.div
           whileHover={{
-            y: -10,
-            scale: 1.07,
+            y: -7,
+            scale: 1.03,
           }}
           transition={{
-            duration: 0.45,
+            duration: 0.35,
             ease: [0.22, 1, 0.36, 1],
           }}
           className="
@@ -92,42 +82,55 @@ export default function PurposeCard({
             relative
             flex
             h-[150px]
-            w-[150px]
+            w-full
             flex-col
             items-center
             justify-center
             overflow-hidden
-            rounded-[48%_52%_52%_48%/42%_44%_56%_58%]
+            rounded-[32px]
             border
-            border-[#C89A2A]/40
+            border-[#C89A2A]/35
             bg-[#FBF7F0]
-            shadow-[0_12px_35px_rgba(80,60,30,0.10)]
+            px-3
+            shadow-[0_8px_25px_rgba(80,60,30,0.08)]
             transition-all
             duration-500
+
             hover:border-[#B88620]
-            hover:shadow-[0_20px_50px_rgba(184,134,32,0.22)]
-            md:h-[165px]
-            md:w-[165px]
+            hover:shadow-[0_16px_40px_rgba(184,134,32,0.18)]
+
+            sm:h-[165px]
+            sm:rounded-[40px]
+
+            lg:h-[165px]
+            lg:w-[165px]
+            lg:rounded-[48%_52%_52%_48%/42%_44%_56%_58%]
           "
         >
-          {/* Inner Decorative Border */}
+          {/* ================================================= */}
+          {/* INNER BORDER */}
+          {/* ================================================= */}
 
           <div
             className="
               pointer-events-none
               absolute
               inset-2
-              rounded-[48%_52%_52%_48%/42%_44%_56%_58%]
+              rounded-[26px]
               border
               border-[#C89A2A]/15
               transition-all
               duration-500
               group-hover:inset-1
-              group-hover:border-[#C89A2A]/50
+              group-hover:border-[#C89A2A]/45
+              sm:rounded-[34px]
+              lg:rounded-[48%_52%_52%_48%/42%_44%_56%_58%]
             "
           />
 
-          {/* Soft Hover Glow */}
+          {/* ================================================= */}
+          {/* GLOW */}
+          {/* ================================================= */}
 
           <div
             className="
@@ -142,16 +145,19 @@ export default function PurposeCard({
             "
           />
 
-          {/* Icon */}
+          {/* ================================================= */}
+          {/* ICON */}
+          {/* ================================================= */}
 
           <div
             className="
               relative
               z-10
-              mb-3
+              mb-2
               flex
-              h-11
-              w-11
+              h-10
+              w-10
+              shrink-0
               items-center
               justify-center
               rounded-full
@@ -161,43 +167,55 @@ export default function PurposeCard({
               text-[#B88620]
               transition-all
               duration-500
+
               group-hover:scale-110
               group-hover:bg-[#C89A2A]
               group-hover:text-white
+
+              sm:mb-3
+              sm:h-11
+              sm:w-11
             "
           >
-            <Icon size={22} strokeWidth={1.5} />
+            <Icon
+              size={21}
+              strokeWidth={1.5}
+            />
           </div>
 
-          {/* Title */}
+          {/* ================================================= */}
+          {/* TITLE */}
+          {/* ================================================= */}
 
           <h3
             className="
               relative
               z-10
-              max-w-[125px]
+              max-w-[130px]
               text-center
-              text-sm
+              text-[13px]
               font-semibold
               leading-5
               text-[#27231E]
-              transition-all
+              transition-transform
               duration-300
               group-hover:-translate-y-1
+              sm:text-sm
             "
           >
             {title}
           </h3>
 
-          {/* Explore */}
+          {/* ================================================= */}
+          {/* EXPLORE */}
+          {/* ================================================= */}
 
           <span
             className="
               absolute
-              bottom-5
+              bottom-4
               z-20
-              translate-y-3
-              text-[10px]
+              text-[9px]
               font-semibold
               uppercase
               tracking-[1.5px]
@@ -205,8 +223,9 @@ export default function PurposeCard({
               opacity-0
               transition-all
               duration-500
-              group-hover:translate-y-0
               group-hover:opacity-100
+              sm:bottom-5
+              sm:text-[10px]
             "
           >
             Explore →

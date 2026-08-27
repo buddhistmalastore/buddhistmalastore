@@ -60,7 +60,7 @@ export default function ProductBreadcrumb({
       />
 
       <Link
-        href={`/category/${product.category.toLowerCase()}`}
+        href={`/shop?category=${encodeURIComponent(product.category)}`}
         className="
           text-[#777]
           transition

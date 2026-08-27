@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import LanguageSelector from "./LanguageSelector";
 
 export default function TopBar() {
   return (
@@ -46,21 +45,33 @@ export default function TopBar() {
         {/* Right */}
 
         <div className="ml-auto flex items-center gap-6">
+
+          {/* Track Order */}
+
           <Link
-            href="/track-order"
-            className="transition-colors duration-300 hover:text-[#B88620]"
+            href="/account/orders"
+            className="
+              transition-colors
+              duration-300
+              hover:text-[#B88620]
+            "
           >
             Track Order
           </Link>
 
+          {/* Blog */}
+
           <Link
             href="/blog"
-            className="transition-colors duration-300 hover:text-[#B88620]"
+            className="
+              transition-colors
+              duration-300
+              hover:text-[#B88620]
+            "
           >
             Blog
           </Link>
 
-          <LanguageSelector />
         </div>
       </div>
     </div>

@@ -24,22 +24,36 @@ export default function NavIcons() {
 
   return (
     <>
+      {/* ================================================= */}
+      {/* DESKTOP NAV ICONS */}
+      {/* ================================================= */}
+
       <div className="hidden lg:flex items-center gap-3">
 
         {/* Search */}
 
         <button
+          type="button"
           onClick={() => setSearchOpen(true)}
           className="
-            flex h-11 w-11 items-center justify-center
-            rounded-full border border-[#E8DFD2]
-            bg-white text-[#1A1A1A]
-            transition-all duration-300
+            flex
+            h-11
+            w-11
+            items-center
+            justify-center
+            rounded-full
+            border
+            border-[#E8DFD2]
+            bg-white
+            text-[#1A1A1A]
+            transition-all
+            duration-300
             hover:border-[#C79B2A]
             hover:bg-[#C79B2A]
             hover:text-white
             hover:shadow-lg
           "
+          aria-label="Search"
         >
           <FiSearch size={18} />
         </button>
@@ -50,15 +64,24 @@ export default function NavIcons() {
           href="/wishlist"
           className="
             relative
-            flex h-11 w-11 items-center justify-center
-            rounded-full border border-[#E8DFD2]
-            bg-white text-[#1A1A1A]
-            transition-all duration-300
+            flex
+            h-11
+            w-11
+            items-center
+            justify-center
+            rounded-full
+            border
+            border-[#E8DFD2]
+            bg-white
+            text-[#1A1A1A]
+            transition-all
+            duration-300
             hover:border-[#C79B2A]
             hover:bg-[#C79B2A]
             hover:text-white
             hover:shadow-lg
           "
+          aria-label="Wishlist"
         >
           <FiHeart size={18} />
 
@@ -90,15 +113,24 @@ export default function NavIcons() {
         <Link
           href="/account"
           className="
-            flex h-11 w-11 items-center justify-center
-            rounded-full border border-[#E8DFD2]
-            bg-white text-[#1A1A1A]
-            transition-all duration-300
+            flex
+            h-11
+            w-11
+            items-center
+            justify-center
+            rounded-full
+            border
+            border-[#E8DFD2]
+            bg-white
+            text-[#1A1A1A]
+            transition-all
+            duration-300
             hover:border-[#C79B2A]
             hover:bg-[#C79B2A]
             hover:text-white
             hover:shadow-lg
           "
+          aria-label="My Account"
         >
           <FiUser size={18} />
         </Link>
@@ -106,18 +138,28 @@ export default function NavIcons() {
         {/* Cart */}
 
         <button
+          type="button"
           onClick={() => setCartOpen(true)}
           className="
             relative
-            flex h-11 w-11 items-center justify-center
-            rounded-full border border-[#E8DFD2]
-            bg-white text-[#1A1A1A]
-            transition-all duration-300
+            flex
+            h-11
+            w-11
+            items-center
+            justify-center
+            rounded-full
+            border
+            border-[#E8DFD2]
+            bg-white
+            text-[#1A1A1A]
+            transition-all
+            duration-300
             hover:border-[#C79B2A]
             hover:bg-[#C79B2A]
             hover:text-white
             hover:shadow-lg
           "
+          aria-label="Shopping Cart"
         >
           <FiShoppingBag size={18} />
 
@@ -145,6 +187,66 @@ export default function NavIcons() {
         </button>
 
       </div>
+
+      {/* ================================================= */}
+      {/* MOBILE CART */}
+      {/* ================================================= */}
+
+      <button
+        type="button"
+        onClick={() => setCartOpen(true)}
+        className="
+          relative
+          flex
+          h-11
+          w-11
+          items-center
+          justify-center
+          rounded-full
+          border
+          border-[#E8DFD2]
+          bg-white
+          text-[#1A1A1A]
+          shadow-sm
+          transition-all
+          duration-300
+          hover:border-[#C79B2A]
+          hover:bg-[#C79B2A]
+          hover:text-white
+          hover:shadow-lg
+          lg:hidden
+        "
+        aria-label="Shopping Cart"
+      >
+        <FiShoppingBag size={20} />
+
+        {cartCount > 0 && (
+          <span
+            className="
+              absolute
+              -right-1
+              -top-1
+              flex
+              h-5
+              min-w-5
+              items-center
+              justify-center
+              rounded-full
+              bg-[#C79B2A]
+              px-1
+              text-[10px]
+              font-bold
+              text-white
+            "
+          >
+            {cartCount}
+          </span>
+        )}
+      </button>
+
+      {/* ================================================= */}
+      {/* DRAWERS */}
+      {/* ================================================= */}
 
       <SearchDrawer
         open={searchOpen}

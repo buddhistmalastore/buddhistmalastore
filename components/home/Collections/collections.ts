@@ -2,21 +2,21 @@ export const collections = [
   {
     title: "108 Bead Malas",
     image: "/images/collections/mala.jpg",
-    slug: "/collections/108-bead-malas",
+    collection: "108 Bead Malas",
   },
   {
     title: "Bracelets",
     image: "/images/collections/bracelet.jpg",
-    slug: "/collections/bracelets",
+    collection: "Bracelets",
   },
   {
     title: "Gemstones",
     image: "/images/collections/gemstones.jpg",
-    slug: "/collections/gemstones",
+    collection: "Gemstones",
   },
   {
     title: "Ritual Items",
     image: "/images/collections/ritual.jpg",
-    slug: "/collections/ritual-items",
+    collection: "Ritual Items",
   },
 ];

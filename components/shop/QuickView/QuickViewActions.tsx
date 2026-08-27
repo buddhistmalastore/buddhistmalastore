@@ -6,6 +6,9 @@ import { FiHeart, FiShoppingBag } from "react-icons/fi";
 import { Product } from "@/types/product";
 import QuantitySelector from "./QuantitySelector";
 
+import useCart from "@/hooks/useCart";
+import { useCurrency } from "@/context/CurrencyContext";
+
 interface QuickViewActionsProps {
   product: Product;
 }
@@ -14,70 +17,123 @@ export default function QuickViewActions({
   product,
 }: QuickViewActionsProps) {
   const [quantity, setQuantity] = useState(1);
+  const [added, setAdded] = useState(false);
+
+  const { addToCart } = useCart();
+  const { formatPrice } = useCurrency();
 
   const total = product.price * quantity;
+
+  const handleAddToCart = () => {
+    if (product.stock <= 0) {
+      return;
+    }
+
+    addToCart(product, quantity);
+
+    setAdded(true);
+
+    setTimeout(() => {
+      setAdded(false);
+    }, 2000);
+  };
 
   return (
     <div className="mt-10 border-t border-[#E8DFD2] pt-8">
 
-      {/* Price */}
+      {/* ================================================= */}
+      {/* PRICE */}
+      {/* ================================================= */}
 
       <div className="mb-8 flex items-end gap-4">
 
         <span className="text-4xl font-bold text-[#1A1A1A]">
-          ${total.toFixed(2)}
+          {formatPrice(total)}
         </span>
 
         {product.oldPrice && (
           <span className="pb-1 text-xl text-gray-400 line-through">
-            ${(product.oldPrice * quantity).toFixed(2)}
+            {formatPrice(
+              product.oldPrice * quantity
+            )}
           </span>
         )}
 
       </div>
 
-      {/* Quantity */}
+      {/* ================================================= */}
+      {/* QUANTITY */}
+      {/* ================================================= */}
 
       <QuantitySelector
         quantity={quantity}
         setQuantity={setQuantity}
       />
 
-      {/* Buttons */}
+      {/* ================================================= */}
+      {/* BUTTONS */}
+      {/* ================================================= */}
 
       <div className="mt-8 flex gap-4">
 
-        {/* Add To Cart */}
+        {/* ADD TO BAG */}
 
         <button
-          className="
+          type="button"
+          onClick={handleAddToCart}
+          disabled={product.stock <= 0}
+          className={`
             flex-1
             rounded-full
-            bg-[#C79B2A]
             px-8
             py-4
             font-semibold
-            text-[#1A1A1A]
             transition-all
             duration-300
-            hover:-translate-y-1
-            hover:bg-[#D6AE4A]
-            hover:shadow-xl
-          "
+            ${
+              product.stock <= 0
+                ? `
+                  cursor-not-allowed
+                  bg-gray-300
+                  text-gray-500
+                `
+                : added
+                  ? `
+                    bg-green-600
+                    text-white
+                  `
+                  : `
+                    bg-[#C79B2A]
+                    text-[#1A1A1A]
+                    hover:-translate-y-1
+                    hover:bg-[#D6AE4A]
+                    hover:shadow-xl
+                  `
+            }
+          `}
         >
           <span className="flex items-center justify-center gap-3">
+
             <FiShoppingBag size={20} />
-            Add To Bag
+
+            {product.stock <= 0
+              ? "Out of Stock"
+              : added
+                ? "Added To Bag ✓"
+                : "Add To Bag"}
+
           </span>
         </button>
 
-        {/* Wishlist */}
+        {/* WISHLIST */}
 
         <button
+          type="button"
           className="
             flex
             h-14
             w-14
+            shrink-0
             items-center
             justify-center
             rounded-full
@@ -85,8 +141,8 @@ export default function QuickViewActions({
             border-[#E8DFD2]
             transition-all
             duration-300
-            hover:border-[#C79B2A]
-            hover:bg-[#C79B2A]
+            hover:border-[#C79A2A]
+            hover:bg-[#C79A2A]
             hover:text-white
           "
         >
@@ -95,7 +151,9 @@ export default function QuickViewActions({
 
       </div>
 
-      {/* Stock */}
+      {/* ================================================= */}
+      {/* STOCK */}
+      {/* ================================================= */}
 
       <div className="mt-6">
 

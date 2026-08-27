@@ -7,41 +7,90 @@ export default function WhyBuddhist() {
   return (
     <section
       className="
+        relative
+        overflow-hidden
         bg-[#F5EFE4]
         px-6
         py-24
         lg:py-32
       "
     >
-      <div className="mx-auto max-w-7xl">
+      {/* Subtle background atmosphere */}
 
-        {/* Section Header */}
+      <div className="pointer-events-none absolute inset-0">
+        <div
+          className="
+            absolute
+            left-1/2
+            top-[-200px]
+            h-[500px]
+            w-[700px]
+            -translate-x-1/2
+            rounded-full
+            bg-[#C89A2A]/[0.025]
+            blur-3xl
+          "
+        />
 
-        <div className="mb-16 text-center">
+        <div
+          className="
+            absolute
+            bottom-[-250px]
+            right-[-150px]
+            h-[500px]
+            w-[500px]
+            rounded-full
+            bg-[#C89A2A]/[0.02]
+            blur-3xl
+          "
+        />
+      </div>
 
-          <p
-            className="
-              text-sm
-              font-semibold
-              uppercase
-              tracking-[4px]
-              text-[#C89A2A]
-            "
-          >
-            The Art of Handmade Spiritual Craftsmanship
-          </p>
+      <div className="relative mx-auto max-w-7xl">
+
+        {/* ================================================= */}
+        {/* SECTION HEADER */}
+        {/* ================================================= */}
+
+        <div className="mx-auto mb-16 max-w-5xl text-center">
+
+          {/* Eyebrow */}
+
+          <div className="flex items-center justify-center gap-4">
+            <span className="h-px w-10 bg-[#C89A2A]/45" />
+
+            <p
+              className="
+                font-body
+                text-[10px]
+                font-bold
+                uppercase
+                tracking-[0.25em]
+                text-[#B88620]
+                md:text-[11px]
+                md:tracking-[0.28em]
+              "
+            >
+              The Art of Handmade Spiritual Craftsmanship
+            </p>
+
+            <span className="h-px w-10 bg-[#C89A2A]/45" />
+          </div>
+
+          {/* Main Heading */}
 
           <h2
             className="
+              mt-6
               heading-font
-              mt-5
-              text-4xl
+              text-[48px]
               font-semibold
-              leading-tight
-              tracking-tight
+              leading-[0.98]
+              tracking-[-0.025em]
               text-[#1A1A1A]
-              md:text-5xl
-              lg:text-6xl
+              sm:text-[56px]
+              md:text-[64px]
+              lg:text-[70px]
             "
           >
             More Than Jewelry.
@@ -52,35 +101,50 @@ export default function WhyBuddhist() {
             </span>
           </h2>
 
+          {/* Decorative Divider */}
+
+          <div className="mx-auto mt-7 flex items-center justify-center gap-3">
+            <span className="h-px w-16 bg-[#C89A2A]/35" />
+
+            <span
+              className="
+                h-2
+                w-2
+                rotate-45
+                bg-[#C89A2A]
+                shadow-[0_0_12px_rgba(200,154,42,0.22)]
+              "
+            />
+
+            <span className="h-px w-16 bg-[#C89A2A]/35" />
+          </div>
+
+          {/* Description */}
+
           <p
             className="
               mx-auto
               mt-7
               max-w-4xl
-              text-base
+              font-body
+              text-[15px]
               leading-8
-              text-[#666666]
-              md:text-lg
-              md:leading-9
+              text-[#665F56]
+              md:text-base
+              md:leading-8
+              lg:text-[17px]
+              lg:leading-9
             "
           >
             Every handcrafted mala carries generations of Nepalese
             craftsmanship, authentic natural gemstones, and the timeless
             spirit of Himalayan Buddhist traditions.
           </p>
-
-          {/* Decorative Divider */}
-
-          <div className="mx-auto mt-8 flex items-center justify-center gap-3">
-            <span className="h-px w-16 bg-[#C89A2A]/40" />
-
-            <span className="h-2 w-2 rotate-45 bg-[#C89A2A]" />
-
-            <span className="h-px w-16 bg-[#C89A2A]/40" />
-          </div>
         </div>
 
-        {/* Four Story Cards — One Row */}
+        {/* ================================================= */}
+        {/* STORY CARDS */}
+        {/* ================================================= */}
 
         <div
           className="

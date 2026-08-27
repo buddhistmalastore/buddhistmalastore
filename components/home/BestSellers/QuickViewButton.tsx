@@ -1,21 +1,36 @@
 "use client";
 
-export default function QuickViewButton() {
+interface QuickViewButtonProps {
+  onClick: () => void;
+}
+
+export default function QuickViewButton({
+  onClick,
+}: QuickViewButtonProps) {
   return (
     <button
       type="button"
+      onClick={(event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        onClick();
+      }}
       className="
         absolute
         bottom-5
         left-1/2
         z-20
+        flex
         -translate-x-1/2
         translate-y-3
+        items-center
+        justify-center
+        whitespace-nowrap
         rounded-full
         border
         border-[#C89A2A]
         bg-white/95
-        px-6
+        px-7
         py-2.5
         text-sm
         font-semibold
