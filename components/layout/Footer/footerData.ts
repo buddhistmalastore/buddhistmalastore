@@ -5,6 +5,10 @@ import {
   FaTiktok,
 } from "react-icons/fa";
 
+/* =========================================================
+   FOOTER INFORMATION
+========================================================= */
+
 export const footerInfo = {
   brand: "Buddhist Mala Store",
   subtitle: "& Handicraft Center",
@@ -17,32 +21,50 @@ export const footerInfo = {
   address: "Thali-05, Kathmandu, Nepal",
 };
 
+/* =========================================================
+   SHOP LINKS
+========================================================= */
+
+/*
+ * IMPORTANT:
+ *
+ * The shop page uses:
+ *
+ * /shop?category=CATEGORY#products
+ *
+ * Therefore the footer must use the same structure.
+ */
+
 export const shopLinks = [
   {
-    title: "Prayer Mala",
-    href: "/collections/prayer-mala",
+    title: "108 Bead Malas",
+    href: "/shop?category=108%20Bead%20Malas#products",
   },
   {
     title: "Bracelets",
-    href: "/collections/bracelets",
+    href: "/shop?category=Bracelets#products",
   },
   {
     title: "Gemstones",
-    href: "/gemstones",
+    href: "/shop?category=Gemstone#products",
   },
   {
     title: "Rudraksha",
-    href: "/collections/rudraksha",
+    href: "/shop?category=Rudraksha#products",
   },
   {
     title: "Singing Bowls",
-    href: "/collections/singing-bowls",
+    href: "/shop?category=Singing%20Bowls#products",
   },
   {
     title: "Ritual Items",
-    href: "/collections/ritual-items",
+    href: "/shop?category=Ritual%20Items#products",
   },
 ];
+
+/* =========================================================
+   SUPPORT LINKS
+========================================================= */
 
 export const supportLinks = [
   {
@@ -75,6 +97,10 @@ export const supportLinks = [
   },
 ];
 
+/* =========================================================
+   SOCIAL LINKS
+========================================================= */
+
 export const socialLinks = [
   {
     title: "Facebook",
@@ -98,6 +124,10 @@ export const socialLinks = [
   },
 ];
 
+/* =========================================================
+   TRUST BADGES
+========================================================= */
+
 export const trustBadges = [
   {
     title: "Handmade in Nepal",
@@ -109,6 +139,10 @@ export const trustBadges = [
     title: "Secure Payments",
   },
 ];
+
+/* =========================================================
+   PAYMENT METHODS
+========================================================= */
 
 export const paymentMethods = [
   "visa",
