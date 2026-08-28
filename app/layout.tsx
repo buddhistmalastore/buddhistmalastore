@@ -5,7 +5,7 @@ import {
   Manrope,
   Noto_Sans_Devanagari,
 } from "next/font/google";
-
+import DharmaWheel from "@/components/ui/DharmaWheel";
 import { CartProvider } from "@/context/CartContext";
 import { CurrencyProvider } from "@/context/CurrencyContext";
 import ScrollToTop from "@/components/ui/ScrollToTop";
@@ -106,6 +106,7 @@ export default function RootLayout({
           antialiased
         `}
       >
+        <DharmaWheel />
         <CurrencyProvider>
           <CartProvider>
             {children}
