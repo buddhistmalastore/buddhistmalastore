@@ -108,6 +108,23 @@ export const metadata: Metadata = {
     },
   },
 
+  /*
+  |--------------------------------------------------------------------------
+  | GOOGLE SEARCH CONSOLE VERIFICATION
+  |--------------------------------------------------------------------------
+  */
+
+  verification: {
+    google:
+      "9wVFXi2TxTNBkIubL2CQXQTq-vShtgJcy9lh87JBK2Q",
+  },
+
+  /*
+  |--------------------------------------------------------------------------
+  | OPEN GRAPH
+  |--------------------------------------------------------------------------
+  */
+
   openGraph: {
     type: "website",
     url: "https://buddhistmalastore.com/",
@@ -126,10 +143,17 @@ export const metadata: Metadata = {
         url: "/og-image.jpg",
         width: 1200,
         height: 630,
-        alt: "Buddhist Mala Store - Handmade Buddhist Malas and Handicrafts",
+        alt:
+          "Buddhist Mala Store - Handmade Buddhist Malas and Handicrafts",
       },
     ],
   },
+
+  /*
+  |--------------------------------------------------------------------------
+  | TWITTER / X
+  |--------------------------------------------------------------------------
+  */
 
   twitter: {
     card: "summary_large_image",
@@ -143,9 +167,21 @@ export const metadata: Metadata = {
     images: ["/og-image.jpg"],
   },
 
+  /*
+  |--------------------------------------------------------------------------
+  | APPLICATION
+  |--------------------------------------------------------------------------
+  */
+
   applicationName: "Buddhist Mala Store",
 
   category: "shopping",
+
+  /*
+  |--------------------------------------------------------------------------
+  | FAVICON
+  |--------------------------------------------------------------------------
+  */
 
   icons: {
     icon: "/favicon.ico",
