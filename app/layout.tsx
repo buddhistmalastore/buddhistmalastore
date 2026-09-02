@@ -5,6 +5,7 @@ import {
   Manrope,
   Noto_Sans_Devanagari,
 } from "next/font/google";
+
 import DharmaWheel from "@/components/ui/DharmaWheel";
 import { CartProvider } from "@/context/CartContext";
 import { CurrencyProvider } from "@/context/CurrencyContext";
@@ -61,8 +62,7 @@ const manrope = Manrope({
 | NOTO SANS DEVANAGARI
 |--------------------------------------------------------------------------
 |
-| Kept available for future Nepali content.
-| It is NOT connected to a language switcher.
+| Available for Nepali content.
 |
 */
 
@@ -75,14 +75,81 @@ const devanagari = Noto_Sans_Devanagari({
 
 /*
 |--------------------------------------------------------------------------
-| METADATA
+| GLOBAL SEO METADATA
 |--------------------------------------------------------------------------
 */
 
 export const metadata: Metadata = {
-  title: "Buddhist Mala Store & Handicraft Center",
+  metadataBase: new URL("https://buddhistmalastore.com"),
+
+  title: {
+    default:
+      "Buddhist Mala Store | Handmade Buddhist Malas & Handicrafts",
+    template: "%s | Buddhist Mala Store",
+  },
+
   description:
-    "Handcrafted malas, gemstone jewelry and spiritual products from Nepal.",
+    "Discover authentic handmade Buddhist malas, prayer beads, gemstone jewelry and Buddhist ritual items crafted in Nepal.",
+
+  alternates: {
+    canonical: "/",
+  },
+
+  robots: {
+    index: true,
+    follow: true,
+
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+      "max-video-preview": -1,
+    },
+  },
+
+  openGraph: {
+    type: "website",
+    url: "https://buddhistmalastore.com/",
+    siteName: "Buddhist Mala Store",
+
+    title:
+      "Buddhist Mala Store | Handmade Buddhist Malas & Handicrafts",
+
+    description:
+      "Discover authentic handmade Buddhist malas, prayer beads, gemstone jewelry and Buddhist ritual items crafted in Nepal.",
+
+    locale: "en_US",
+
+    images: [
+      {
+        url: "/og-image.jpg",
+        width: 1200,
+        height: 630,
+        alt: "Buddhist Mala Store - Handmade Buddhist Malas and Handicrafts",
+      },
+    ],
+  },
+
+  twitter: {
+    card: "summary_large_image",
+
+    title:
+      "Buddhist Mala Store | Handmade Buddhist Malas & Handicrafts",
+
+    description:
+      "Authentic handmade Buddhist malas, prayer beads, gemstone jewelry and Buddhist ritual items from Nepal.",
+
+    images: ["/og-image.jpg"],
+  },
+
+  applicationName: "Buddhist Mala Store",
+
+  category: "shopping",
+
+  icons: {
+    icon: "/favicon.ico",
+  },
 };
 
 /*
@@ -107,12 +174,15 @@ export default function RootLayout({
         `}
       >
         <DharmaWheel />
+
         <CurrencyProvider>
           <CartProvider>
             {children}
+
             <AIChat />
-            <ScrollToTop />   
-        </CartProvider>
+
+            <ScrollToTop />
+          </CartProvider>
         </CurrencyProvider>
       </body>
     </html>
