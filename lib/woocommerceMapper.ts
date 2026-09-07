@@ -21,6 +21,12 @@ interface WooCommerceAttribute {
   options: string[];
 }
 
+interface WooCommerceMetaData {
+  id: number;
+  key: string;
+  value: string | number | boolean | null;
+}
+
 interface WooCommerceProduct {
   id: number;
   slug: string;
@@ -45,6 +51,8 @@ interface WooCommerceProduct {
   images: WooCommerceImage[];
 
   attributes: WooCommerceAttribute[];
+
+  meta_data?: WooCommerceMetaData[];
 
   short_description: string;
   description: string;
@@ -79,6 +87,24 @@ function getAttributeValues(
   );
 
   return attribute?.options || [];
+}
+
+function getProductVideo(
+  metaData?: WooCommerceMetaData[]
+): string | undefined {
+  const videoMeta = metaData?.find(
+    (item) =>
+      item.key === "_bms_product_video"
+  );
+
+  if (
+    typeof videoMeta?.value === "string" &&
+    videoMeta.value.trim()
+  ) {
+    return videoMeta.value.trim();
+  }
+
+  return undefined;
 }
 
 export function mapWooCommerceProduct(
@@ -128,6 +154,7 @@ export function mapWooCommerceProduct(
   );
 
   // WooCommerce Attributes
+
   const beadSize = getAttribute(
     product.attributes,
     "Bead Size"
@@ -187,17 +214,26 @@ export function mapWooCommerceProduct(
     "Zodiac"
   );
 
+  // Product Video
+  const video = getProductVideo(
+    product.meta_data
+  );
+
   return {
     id: product.id,
+
     slug: product.slug,
 
     name: product.name,
+
     shortName: product.name,
+
     sku: product.sku,
 
     category,
 
-    collection: collection || "General",
+    collection:
+      collection || "General",
 
     material,
 
@@ -220,28 +256,37 @@ export function mapWooCommerceProduct(
     element,
 
     price,
+
     oldPrice,
+
     discount,
 
     rating,
-    reviews: product.rating_count,
+
+    reviews:
+      product.rating_count,
 
     stock:
       product.stock_quantity ?? 0,
 
-    featured: product.featured,
+    featured:
+      product.featured,
 
     bestSeller: false,
 
     newArrival: false,
 
-    badge: product.featured
-      ? "New"
-      : product.on_sale
-        ? "Sale"
-        : undefined,
+    badge:
+      product.featured
+        ? "New"
+        : product.on_sale
+          ? "Sale"
+          : undefined,
 
     images,
+
+    // Product Video
+    video,
 
     shortDescription:
       stripHtml(
@@ -249,9 +294,12 @@ export function mapWooCommerceProduct(
       ),
 
     description:
-      stripHtml(product.description),
+      stripHtml(
+        product.description
+      ),
 
-    metaTitle: product.name,
+    metaTitle:
+      product.name,
 
     metaDescription:
       stripHtml(

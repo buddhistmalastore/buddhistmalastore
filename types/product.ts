@@ -1,5 +1,6 @@
 export interface Product {
   id: number;
+
   slug: string;
 
   // Basic
@@ -38,19 +39,24 @@ export interface Product {
 
   // Inventory
   stock: number;
+
   featured: boolean;
   bestSeller: boolean;
   newArrival: boolean;
 
   badge?:
-  | "New"
-  | "Best Seller"
-  | "Limited"
-  | "Handmade"
-  | "Sale";
+    | "New"
+    | "Best Seller"
+    | "Limited"
+    | "Handmade"
+    | "Sale";
 
   // Images
   images: string[];
+
+  // Product Video
+  // Optional so existing products continue working
+  video?: string;
 
   // Description
   shortDescription: string;
