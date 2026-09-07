@@ -29,15 +29,15 @@ export default function ProductPageContent({
   next,
   relatedProducts,
 }: Props) {
-  const buyBoxRef =
-    useRef<HTMLElement | null>(null);
+  const buyBoxRef = useRef<HTMLElement | null>(null);
 
-  const stickyVisible =
-    useStickyBuyBar(buyBoxRef);
+  const stickyVisible = useStickyBuyBar(buyBoxRef);
 
   return (
     <>
-      {/* Main Product Content */}
+      {/* =========================================================
+          MAIN PRODUCT CONTENT
+      ========================================================= */}
 
       <section
         className="
@@ -48,13 +48,15 @@ export default function ProductPageContent({
           lg:px-10
         "
       >
-        {/* Breadcrumb */}
+        {/* =====================================================
+            BREADCRUMB
+        ===================================================== */}
 
-        <ProductBreadcrumb
-          product={product}
-        />
+        <ProductBreadcrumb product={product} />
 
-        {/* Gallery + Product Info */}
+        {/* =====================================================
+            PRODUCT GALLERY + PRODUCT INFORMATION
+        ===================================================== */}
 
         <div
           className="
@@ -65,7 +67,7 @@ export default function ProductPageContent({
             xl:grid-cols-[48%_52%]
           "
         >
-          {/* LEFT - Gallery */}
+          {/* LEFT - GALLERY */}
 
           <aside
             className="
@@ -74,12 +76,10 @@ export default function ProductPageContent({
               xl:top-24
             "
           >
-            <ProductGallery
-              product={product}
-            />
+            <ProductGallery product={product} />
           </aside>
 
-          {/* RIGHT - Product Information */}
+          {/* RIGHT - PRODUCT INFO */}
 
           <section>
             <ProductInfo
@@ -91,21 +91,26 @@ export default function ProductPageContent({
           </section>
         </div>
 
-        {/* Frequently Bought Together */}
+        {/* =====================================================
+            FREQUENTLY BOUGHT TOGETHER
+        ===================================================== */}
 
         <section className="mt-20">
           <FrequentlyBoughtTogether
             product={product}
+            relatedProducts={relatedProducts}
           />
         </section>
 
-        {/* Product Tabs */}
+        {/* =====================================================
+            PRODUCT TABS
+        ===================================================== */}
 
-        <ProductTabs
-          product={product}
-        />
+        <ProductTabs product={product} />
 
-        {/* Related Products */}
+        {/* =====================================================
+            RELATED PRODUCTS
+        ===================================================== */}
 
         <section className="mt-24">
           <RelatedProducts
@@ -114,7 +119,9 @@ export default function ProductPageContent({
         </section>
       </section>
 
-      {/* Sticky Buy Bar */}
+      {/* =======================================================
+          STICKY BUY BAR
+      ======================================================= */}
 
       <StickyBuyBar
         product={product}

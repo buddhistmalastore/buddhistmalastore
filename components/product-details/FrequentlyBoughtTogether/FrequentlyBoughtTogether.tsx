@@ -5,7 +5,6 @@ import Image from "next/image";
 import Link from "next/link";
 
 import { Product } from "@/types/product";
-import { products } from "@/data/products";
 
 import {
   FiPlus,
@@ -13,80 +12,230 @@ import {
   FiCheck,
 } from "react-icons/fi";
 
+import { useCartContext } from "@/context/CartContext";
+import { useCurrency } from "@/context/CurrencyContext";
+
 interface Props {
   product: Product;
+  relatedProducts: Product[];
 }
 
 export default function FrequentlyBoughtTogether({
   product,
+  relatedProducts,
 }: Props) {
-  // Demo bundle
+  const { addToCart } = useCartContext();
+  const { formatPrice } = useCurrency();
+
+  /*
+   * ---------------------------------------------------------
+   * Bundle Products
+   * ---------------------------------------------------------
+   *
+   * Use LIVE WooCommerce products passed from the
+   * product page instead of the old static products data.
+   */
+
   const bundle = useMemo(() => {
-    const others = products
-      .filter((p) => p.id !== product.id)
+    const others = relatedProducts
+      .filter((item) => item.id !== product.id)
       .slice(0, 2);
 
     return [product, ...others];
-  }, [product]);
+  }, [product, relatedProducts]);
 
-  const [selected, setSelected] = useState(
-    bundle.map(() => true)
-  );
+  /*
+   * ---------------------------------------------------------
+   * Selected Products
+   * ---------------------------------------------------------
+   */
+
+  const [selected, setSelected] = useState<boolean[]>([]);
+
+  /*
+   * Keep selection length synchronized with bundle.
+   */
+
+  const selectedProducts =
+    selected.length === bundle.length
+      ? selected
+      : bundle.map(() => true);
+
+  /*
+   * ---------------------------------------------------------
+   * Toggle
+   * ---------------------------------------------------------
+   */
 
   const toggle = (index: number) => {
-    const copy = [...selected];
-    copy[index] = !copy[index];
-    setSelected(copy);
+    setSelected((prev) => {
+      const current =
+        prev.length === bundle.length
+          ? prev
+          : bundle.map(() => true);
+
+      const copy = [...current];
+
+      copy[index] = !copy[index];
+
+      return copy;
+    });
   };
 
-  const subtotal = bundle.reduce((sum, item, index) => {
-    return selected[index]
-      ? sum + item.price
-      : sum;
-  }, 0);
+  /*
+   * ---------------------------------------------------------
+   * Selected Items
+   * ---------------------------------------------------------
+   */
 
-  const original = bundle.reduce((sum, item, index) => {
-    return selected[index]
-      ? sum + (item.oldPrice ?? item.price)
-      : sum;
-  }, 0);
+  const selectedItems = bundle.filter(
+    (_, index) => selectedProducts[index]
+  );
 
-  const saving = original - subtotal;
+  /*
+   * ---------------------------------------------------------
+   * Subtotal
+   * ---------------------------------------------------------
+   */
+
+  const subtotal = selectedItems.reduce(
+    (sum, item) => sum + item.price,
+    0
+  );
+
+  /*
+   * ---------------------------------------------------------
+   * Original Price
+   * ---------------------------------------------------------
+   */
+
+  const original = selectedItems.reduce(
+    (sum, item) =>
+      sum + (item.oldPrice ?? item.price),
+    0
+  );
+
+  /*
+   * ---------------------------------------------------------
+   * Saving
+   * ---------------------------------------------------------
+   */
+
+  const saving = Math.max(
+    original - subtotal,
+    0
+  );
+
+  /*
+   * ---------------------------------------------------------
+   * Add Bundle To Cart
+   * ---------------------------------------------------------
+   */
+
+  const handleAddBundle = () => {
+    selectedItems.forEach((item) => {
+      addToCart(item, 1);
+    });
+  };
+
+  /*
+   * ---------------------------------------------------------
+   * Render
+   * ---------------------------------------------------------
+   */
 
   return (
     <section className="mt-24">
 
+      {/* HEADER */}
+
       <div className="mb-10">
 
-        <p className="text-xs font-semibold uppercase tracking-[3px] text-[#C89A2A]">
+        <p
+          className="
+            text-xs
+            font-semibold
+            uppercase
+            tracking-[3px]
+            text-[#C89A2A]
+          "
+        >
           Complete Your Collection
         </p>
 
-        <h2 className="mt-3 text-4xl font-semibold text-[#1A1A1A]">
+        <h2
+          className="
+            mt-3
+            text-4xl
+            font-semibold
+            text-[#1A1A1A]
+          "
+        >
           Frequently Bought Together
         </h2>
 
-        <p className="mt-3 max-w-2xl text-[15px] leading-8 text-[#777]">
-          Customers frequently purchase these handcrafted products together.
+        <p
+          className="
+            mt-3
+            max-w-2xl
+            text-[15px]
+            leading-8
+            text-[#777]
+          "
+        >
+          Customers frequently purchase these
+          handcrafted products together.
         </p>
 
       </div>
 
-      <div className="rounded-3xl border border-[#ECE3D3] bg-white p-8 shadow-sm">
+      {/* BUNDLE */}
 
-        <div className="grid gap-8 lg:grid-cols-[1fr_320px]">
+      <div
+        className="
+          rounded-3xl
+          border
+          border-[#ECE3D3]
+          bg-white
+          p-8
+          shadow-sm
+        "
+      >
+
+        <div
+          className="
+            grid
+            gap-8
+            lg:grid-cols-[1fr_320px]
+          "
+        >
 
           {/* LEFT */}
 
           <div>
 
-            <div className="flex flex-wrap items-center gap-5">
+            <div
+              className="
+                flex
+                flex-wrap
+                items-center
+                gap-5
+              "
+            >
 
               {bundle.map((item, index) => (
+
                 <div
-                  key={item.id}
-                  className="flex items-center gap-5"
+                  key={`${item.id}-${index}`}
+                  className="
+                    flex
+                    items-center
+                    gap-5
+                  "
                 >
+
+                  {/* PLUS */}
+
                   {index !== 0 && (
                     <FiPlus
                       size={28}
@@ -96,43 +245,98 @@ export default function FrequentlyBoughtTogether({
 
                   <div className="w-[170px]">
 
-                    <div className="relative h-[170px] rounded-2xl border border-[#ECE3D3] bg-[#FAF8F4]">
+                    {/* IMAGE */}
 
-                      <Image
-                        src={item.images[0]}
-                        alt={item.name}
-                        fill
-                        className="object-contain p-5"
-                      />
+                    <Link
+                      href={`/product/${item.slug}`}
+                    >
+                      <div
+                        className="
+                          relative
+                          h-[170px]
+                          rounded-2xl
+                          border
+                          border-[#ECE3D3]
+                          bg-[#FAF8F4]
+                        "
+                      >
 
-                    </div>
+                        <Image
+                          src={item.images[0]}
+                          alt={item.name}
+                          fill
+                          className="
+                            object-contain
+                            p-5
+                          "
+                        />
 
-                    <label className="mt-4 flex cursor-pointer items-start gap-3">
+                      </div>
+                    </Link>
+
+                    {/* CHECKBOX */}
+
+                    <div
+                      className="
+                        mt-4
+                        flex
+                        items-start
+                        gap-3
+                      "
+                    >
 
                       <input
                         type="checkbox"
-                        checked={selected[index]}
-                        onChange={() => toggle(index)}
-                        className="mt-1 h-4 w-4 accent-[#C89A2A]"
+                        checked={
+                          selectedProducts[index]
+                        }
+                        onChange={() =>
+                          toggle(index)
+                        }
+                        className="
+                          mt-1
+                          h-4
+                          w-4
+                          cursor-pointer
+                          accent-[#C89A2A]
+                        "
                       />
 
                       <div>
 
-                        <h4 className="line-clamp-2 text-sm font-semibold">
-                          {item.name}
-                        </h4>
+                        <Link
+                          href={`/product/${item.slug}`}
+                        >
+                          <h4
+                            className="
+                              line-clamp-2
+                              text-sm
+                              font-semibold
+                              hover:text-[#C89A2A]
+                            "
+                          >
+                            {item.name}
+                          </h4>
+                        </Link>
 
-                        <p className="mt-2 text-[#C89A2A] font-bold">
-                          NPR {item.price}
+                        <p
+                          className="
+                            mt-2
+                            font-bold
+                            text-[#C89A2A]
+                          "
+                        >
+                          {formatPrice(item.price)}
                         </p>
 
                       </div>
 
-                    </label>
+                    </div>
 
                   </div>
 
                 </div>
+
               ))}
 
             </div>
@@ -141,28 +345,65 @@ export default function FrequentlyBoughtTogether({
 
           {/* RIGHT */}
 
-          <div className="rounded-2xl bg-[#FAF8F4] p-7">
+          <div
+            className="
+              rounded-2xl
+              bg-[#FAF8F4]
+              p-7
+            "
+          >
 
-            <h3 className="text-xl font-semibold">
+            <h3
+              className="
+                text-xl
+                font-semibold
+              "
+            >
               Bundle Summary
             </h3>
 
-            <div className="mt-6 space-y-4">
+            {/* ITEMS */}
+
+            <div
+              className="
+                mt-6
+                space-y-4
+              "
+            >
 
               {bundle.map((item, index) => {
-                if (!selected[index]) return null;
+
+                if (!selectedProducts[index]) {
+                  return null;
+                }
 
                 return (
                   <div
-                    key={item.id}
-                    className="flex justify-between text-sm"
+                    key={`${item.id}-summary`}
+                    className="
+                      flex
+                      justify-between
+                      gap-4
+                      text-sm
+                    "
                   >
-                    <span className="line-clamp-1 mr-4">
+
+                    <span
+                      className="
+                        line-clamp-1
+                        min-w-0
+                      "
+                    >
                       {item.name}
                     </span>
 
-                    <span className="font-semibold">
-                      NPR {item.price}
+                    <span
+                      className="
+                        whitespace-nowrap
+                        font-semibold
+                      "
+                    >
+                      {formatPrice(item.price)}
                     </span>
 
                   </div>
@@ -171,31 +412,67 @@ export default function FrequentlyBoughtTogether({
 
             </div>
 
-            <div className="my-6 border-t border-dashed border-[#DDD]" />
+            {/* DIVIDER */}
 
-            <div className="flex justify-between">
+            <div
+              className="
+                my-6
+                border-t
+                border-dashed
+                border-[#DDD]
+              "
+            />
 
-              <span>Subtotal</span>
+            {/* SUBTOTAL */}
+
+            <div
+              className="
+                flex
+                justify-between
+              "
+            >
+
+              <span>
+                Subtotal
+              </span>
 
               <span className="font-semibold">
-                NPR {subtotal}
+                {formatPrice(subtotal)}
               </span>
 
             </div>
 
-            {saving > 0 && (
-              <div className="mt-3 flex justify-between text-green-600">
+            {/* SAVINGS */}
 
-                <span>You Save</span>
+            {saving > 0 && (
+
+              <div
+                className="
+                  mt-3
+                  flex
+                  justify-between
+                  text-green-600
+                "
+              >
+
+                <span>
+                  You Save
+                </span>
 
                 <span className="font-semibold">
-                  NPR {saving}
+                  {formatPrice(saving)}
                 </span>
 
               </div>
+
             )}
 
+            {/* ADD BUNDLE */}
+
             <button
+              type="button"
+              onClick={handleAddBundle}
+              disabled={selectedItems.length === 0}
               className="
                 mt-8
                 flex
@@ -210,13 +487,18 @@ export default function FrequentlyBoughtTogether({
                 text-white
                 transition
                 hover:bg-[#B5851F]
+                disabled:cursor-not-allowed
+                disabled:opacity-50
               "
             >
+
               <FiShoppingCart />
 
               Add Bundle to Cart
 
             </button>
+
+            {/* TRUST */}
 
             <Link
               href="/shop"
@@ -230,6 +512,7 @@ export default function FrequentlyBoughtTogether({
                 text-[#666]
               "
             >
+
               <FiCheck />
 
               Premium handcrafted products
