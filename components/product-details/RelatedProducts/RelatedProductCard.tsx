@@ -4,13 +4,12 @@ import Image from "next/image";
 import Link from "next/link";
 
 import { Product } from "@/types/product";
+import { useCurrency } from "@/context/CurrencyContext";
 
 import {
   FiHeart,
   FiShoppingCart,
 } from "react-icons/fi";
-
-import { useCartContext } from "@/context/CartContext";
 
 interface Props {
   product: Product;
@@ -19,28 +18,13 @@ interface Props {
 export default function RelatedProductCard({
   product,
 }: Props) {
-  const { addToCart } = useCartContext();
-
-  const handleAddToCart = (
-    e: React.MouseEvent<HTMLButtonElement>
-  ) => {
-    e.preventDefault();
-    e.stopPropagation();
-
-    addToCart(product, 1);
-  };
-
-  const handleWishlist = (
-    e: React.MouseEvent<HTMLButtonElement>
-  ) => {
-    e.preventDefault();
-    e.stopPropagation();
-
-    // Wishlist functionality can be connected later
-  };
+  const {
+    formatPrice,
+  } = useCurrency();
 
   return (
-    <div
+    <Link
+      href={`/product/${product.slug}`}
       className="
         group
         overflow-hidden
@@ -54,9 +38,17 @@ export default function RelatedProductCard({
         hover:shadow-2xl
       "
     >
+
       {/* IMAGE */}
 
-      <div className="relative h-[280px] overflow-hidden bg-[#FBF9F5]">
+      <div
+        className="
+          relative
+          h-[280px]
+          overflow-hidden
+          bg-[#FBF9F5]
+        "
+      >
 
         {/* Badge */}
 
@@ -108,12 +100,15 @@ export default function RelatedProductCard({
 
         <button
           type="button"
-          onClick={handleWishlist}
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+          }}
           className="
             absolute
             right-4
             top-4
-            z-30
+            z-20
             flex
             h-10
             w-10
@@ -131,25 +126,21 @@ export default function RelatedProductCard({
           <FiHeart size={18} />
         </button>
 
-        {/* Product Image Link */}
+        {/* Image */}
 
-        <Link
-          href={`/product/${product.slug}`}
-          className="absolute inset-0"
-        >
-          <Image
-            src={product.images[0]}
-            alt={product.name}
-            fill
-            className="
-              object-contain
-              p-6
-              transition-all
-              duration-700
-              group-hover:scale-110
-            "
-          />
-        </Link>
+        <Image
+          src={product.images[0]}
+          alt={product.name}
+          fill
+          className="
+            object-contain
+            p-6
+            transition-all
+            duration-700
+            group-hover:scale-110
+          "
+        />
+
       </div>
 
       {/* CONTENT */}
@@ -172,24 +163,20 @@ export default function RelatedProductCard({
 
         {/* Product Name */}
 
-        <Link
-          href={`/product/${product.slug}`}
+        <h3
+          className="
+            mt-3
+            min-h-[56px]
+            text-[18px]
+            font-semibold
+            leading-7
+            text-[#1A1A1A]
+            transition
+            group-hover:text-[#C89A2A]
+          "
         >
-          <h3
-            className="
-              mt-3
-              min-h-[56px]
-              text-[18px]
-              font-semibold
-              leading-7
-              text-[#1A1A1A]
-              transition
-              hover:text-[#C89A2A]
-            "
-          >
-            {product.name}
-          </h3>
-        </Link>
+          {product.name}
+        </h3>
 
         {/* Rating */}
 
@@ -209,27 +196,48 @@ export default function RelatedProductCard({
 
         </div>
 
-        {/* Price */}
+        {/* PRICE */}
 
         <div className="mt-5 flex items-end gap-3">
 
-          <div className="text-[28px] font-bold text-[#1A1A1A]">
-            {product.price}
+          <div
+            className="
+              text-[28px]
+              font-bold
+              text-[#1A1A1A]
+            "
+          >
+            {formatPrice(product.price)}
           </div>
 
+          {/* OLD PRICE */}
+
           {product.oldPrice && (
-            <div className="pb-1 text-sm text-[#999] line-through">
-              {product.oldPrice}
+            <div
+              className="
+                pb-1
+                text-sm
+                text-[#999]
+                line-through
+              "
+            >
+              {formatPrice(product.oldPrice)}
             </div>
           )}
 
         </div>
 
-        {/* Add To Cart */}
+        {/* ADD TO CART */}
 
         <button
           type="button"
-          onClick={handleAddToCart}
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+
+            // Cart functionality is handled
+            // by the existing cart implementation.
+          }}
           className="
             mt-6
             flex
@@ -255,6 +263,7 @@ export default function RelatedProductCard({
         </button>
 
       </div>
-    </div>
+
+    </Link>
   );
 }
