@@ -5,6 +5,7 @@ import Link from "next/link";
 
 import { Product } from "@/types/product";
 import { useCurrency } from "@/context/CurrencyContext";
+import { useCartContext } from "@/context/CartContext";
 
 import {
   FiHeart,
@@ -18,9 +19,18 @@ interface Props {
 export default function RelatedProductCard({
   product,
 }: Props) {
-  const {
-    formatPrice,
-  } = useCurrency();
+  const { formatPrice } = useCurrency();
+
+  const { addToCart } = useCartContext();
+
+  const handleAddToCart = (
+    e: React.MouseEvent<HTMLButtonElement>
+  ) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    addToCart(product, 1);
+  };
 
   return (
     <Link
@@ -231,13 +241,7 @@ export default function RelatedProductCard({
 
         <button
           type="button"
-          onClick={(e) => {
-            e.preventDefault();
-            e.stopPropagation();
-
-            // Cart functionality is handled
-            // by the existing cart implementation.
-          }}
+          onClick={handleAddToCart}
           className="
             mt-6
             flex
