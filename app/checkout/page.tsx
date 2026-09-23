@@ -2,7 +2,9 @@
 
 import {
   FormEvent,
+  useEffect,
   useMemo,
+  useRef,
   useState,
 } from "react";
 
@@ -24,6 +26,45 @@ import useCart from "@/hooks/useCart";
 import { useCurrency } from "@/context/CurrencyContext";
 
 import Header from "@/components/layout/Header/Header";
+
+/* =========================================================
+   STRIPE / WOOPAYMENTS TYPES
+========================================================= */
+
+declare global {
+  interface Window {
+    Stripe?: (
+      publishableKey: string,
+      options?: { stripeAccount?: string }
+    ) => StripeInstance;
+  }
+}
+
+type StripeInstance = {
+  elements: (options: Record<string, unknown>) => StripeElements;
+  createPaymentMethod: (options: Record<string, unknown>) => Promise<{
+    error?: { message?: string };
+    paymentMethod?: { id: string };
+  }>;
+};
+
+type StripeElements = {
+  create: (type: string) => StripePaymentElement;
+  submit: () => Promise<{ error?: { message?: string } }>;
+};
+
+type StripePaymentElement = {
+  mount: (element: HTMLElement) => void;
+  destroy: () => void;
+};
+
+type WooPaymentsConfig = {
+  publishableKey: string;
+  accountId?: string;
+  testMode?: boolean;
+  locale?: string;
+  currency?: string;
+};
 
 /* =========================================================
    TYPES
@@ -587,14 +628,63 @@ export default function CheckoutPage() {
   const [paymentMethod, setPaymentMethod] =
     useState<PaymentMethod>("fonepay");
 
+  const [checkoutMode, setCheckoutMode] =
+    useState<"loading" | "authenticated" | "choice" | "guest">("loading");
+
+  const [customerName, setCustomerName] =
+    useState("");
+
+  const [isAuthLoading, setIsAuthLoading] =
+    useState(true);
+
   const [submitted, setSubmitted] =
     useState(false);
 
   const [isSubmitting, setIsSubmitting] =
     useState(false);
 
+  const [wooCartToken, setWooCartToken] =
+    useState<string | null>(null);
+
+  const [wooPaymentsConfig, setWooPaymentsConfig] =
+    useState<WooPaymentsConfig | null>(null);
+
+  const [stripe, setStripe] =
+    useState<StripeInstance | null>(null);
+
+  const [stripeElements, setStripeElements] =
+    useState<StripeElements | null>(null);
+
+  const [cardElementReady, setCardElementReady] =
+    useState(false);
+
+  const cardElementRef =
+    useRef<HTMLDivElement | null>(null);
+
+  const cardPaymentElementRef =
+    useRef<StripePaymentElement | null>(null);
+
   const [orderNumber, setOrderNumber] =
     useState<string | null>(null);
+
+  const [billingSameAsShipping, setBillingSameAsShipping] =
+    useState(true);
+
+  // WooPayments saved-card preference.
+  // This is available only to authenticated customers.
+  const [savePaymentMethod, setSavePaymentMethod] =
+    useState(false);
+
+  const [billingForm, setBillingForm] = useState({
+    firstName: "",
+    lastName: "",
+    country: "Nepal",
+    address: "",
+    apartment: "",
+    city: "",
+    province: "",
+    postalCode: "",
+  });
 
   const [form, setForm] = useState({
     firstName: "",
@@ -609,6 +699,261 @@ export default function CheckoutPage() {
     postalCode: "",
     notes: "",
   });
+
+  /* =======================================================
+     AUTHENTICATED CUSTOMER
+  ======================================================= */
+
+  useEffect(() => {
+    let cancelled = false;
+
+    const loadAuthenticatedCustomer = async () => {
+      try {
+        const response = await fetch("/api/auth/me", {
+          method: "GET",
+          credentials: "include",
+          cache: "no-store",
+        });
+
+        const data = await response.json().catch(() => null);
+
+        if (cancelled) {
+          return;
+        }
+
+        if (response.ok && data?.success === true && data?.authenticated === true && data?.customer) {
+          const customer = data.customer;
+          const firstName = typeof customer.first_name === "string" ? customer.first_name : "";
+          const lastName = typeof customer.last_name === "string" ? customer.last_name : "";
+          const email = typeof customer.email === "string" ? customer.email : "";
+          const fullName = `${firstName} ${lastName}`.trim();
+
+          setCustomerName(fullName || email);
+          setForm((prev) => ({
+            ...prev,
+            firstName: firstName || prev.firstName,
+            lastName: lastName || prev.lastName,
+            email: email || prev.email,
+          }));
+          setCheckoutMode("authenticated");
+        } else {
+          setCheckoutMode("choice");
+        }
+      } catch (error) {
+        console.error("Unable to verify checkout session:", error);
+
+        if (!cancelled) {
+          setCheckoutMode("choice");
+        }
+      } finally {
+        if (!cancelled) {
+          setIsAuthLoading(false);
+        }
+      }
+    };
+
+    loadAuthenticatedCustomer();
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  /* =======================================================
+     INITIALIZE SECURE WOOPAYMENTS CARD ELEMENT
+  ======================================================= */
+
+  useEffect(() => {
+    if (paymentMethod !== "card" || form.country.trim().toLowerCase() === "nepal") {
+      if (cardPaymentElementRef.current) {
+        cardPaymentElementRef.current.destroy();
+        cardPaymentElementRef.current = null;
+      }
+      setStripeElements(null);
+      setStripe(null);
+      setCardElementReady(false);
+      return;
+    }
+
+    let cancelled = false;
+
+    const initializeCardPayment = async () => {
+      try {
+        const configResponse = await fetch(
+          "/api/woopayments-config",
+          { cache: "no-store" }
+        );
+
+        const configData = await configResponse.json().catch(() => null);
+
+        if (!configResponse.ok || !configData?.success || !configData?.config?.publishableKey) {
+          throw new Error(
+            configData?.error ||
+              "Unable to initialize WooPayments card payment."
+          );
+        }
+
+        const config = configData.config as WooPaymentsConfig;
+
+        if (cancelled) return;
+        setWooPaymentsConfig(config);
+
+        if (!window.Stripe) {
+          await new Promise<void>((resolve, reject) => {
+            const existing = document.querySelector<HTMLScriptElement>(
+              'script[data-bms-stripe="true"]'
+            );
+
+            if (existing) {
+              existing.addEventListener("load", () => resolve(), { once: true });
+              existing.addEventListener("error", () => reject(new Error("Unable to load Stripe.js.")), { once: true });
+              return;
+            }
+
+            const script = document.createElement("script");
+            script.src = "https://js.stripe.com/v3/";
+            script.async = true;
+            script.dataset.bmsStripe = "true";
+            script.onload = () => resolve();
+            script.onerror = () => reject(new Error("Unable to load Stripe.js."));
+            document.head.appendChild(script);
+          });
+        }
+
+        if (!window.Stripe) {
+          throw new Error("Stripe.js is unavailable.");
+        }
+
+        const stripeClient = window.Stripe(
+          config.publishableKey,
+          config.accountId
+            ? { stripeAccount: config.accountId }
+            : undefined
+        );
+
+        const elements = stripeClient.elements({
+          mode: "payment",
+          amount: Math.round(grandTotal * 100),
+          currency: "usd",
+          paymentMethodCreation: "manual",
+          loader: "never",
+          appearance: {
+            theme: "stripe",
+            variables: {
+              colorPrimary: "#C89A2A",
+              borderRadius: "12px",
+              fontFamily: "Inter, system-ui, sans-serif",
+            },
+          },
+        });
+
+        const paymentElement = elements.create("payment");
+
+        if (cancelled) {
+          paymentElement.destroy();
+          return;
+        }
+
+        cardPaymentElementRef.current = paymentElement;
+        setStripe(stripeClient);
+        setStripeElements(elements);
+        setCardElementReady(false);
+
+        window.setTimeout(() => {
+          if (!cancelled && cardElementRef.current && cardPaymentElementRef.current) {
+            cardPaymentElementRef.current.mount(cardElementRef.current);
+            setCardElementReady(true);
+          }
+        }, 0);
+      } catch (error) {
+        console.error("WooPayments initialization failed:", error);
+        if (!cancelled) {
+          setCardElementReady(false);
+          alert(
+            error instanceof Error
+              ? error.message
+              : "Unable to initialize secure card payment."
+          );
+        }
+      }
+    };
+
+    initializeCardPayment();
+
+    return () => {
+      cancelled = true;
+      if (cardPaymentElementRef.current) {
+        cardPaymentElementRef.current.destroy();
+        cardPaymentElementRef.current = null;
+      }
+      setStripeElements(null);
+      setStripe(null);
+      setCardElementReady(false);
+    };
+  }, [paymentMethod, form.country]);
+
+  /* =======================================================
+     PRESERVE CHECKOUT DRAFT BEFORE SIGN IN
+  ======================================================= */
+
+  const saveCheckoutDraft = () => {
+    try {
+      window.sessionStorage.setItem(
+        "buddhistmala_checkout_draft",
+        JSON.stringify({
+          form,
+          shippingMethod,
+          paymentMethod,
+          savePaymentMethod,
+        })
+      );
+    } catch (error) {
+      console.warn("Unable to save checkout draft:", error);
+    }
+  };
+
+  useEffect(() => {
+    if (checkoutMode !== "authenticated") {
+      return;
+    }
+
+    try {
+      const raw = window.sessionStorage.getItem(
+        "buddhistmala_checkout_draft"
+      );
+
+      if (!raw) {
+        return;
+      }
+
+      const draft = JSON.parse(raw);
+
+      if (draft?.form) {
+        setForm((prev) => ({
+          ...prev,
+          ...draft.form,
+        }));
+      }
+
+      if (draft?.shippingMethod === "standard" || draft?.shippingMethod === "express") {
+        setShippingMethod(draft.shippingMethod);
+      }
+
+      if (draft?.paymentMethod === "fonepay" || draft?.paymentMethod === "paypal" || draft?.paymentMethod === "card") {
+        setPaymentMethod(draft.paymentMethod);
+      }
+
+      if (draft?.savePaymentMethod === true) {
+        setSavePaymentMethod(true);
+      }
+
+      window.sessionStorage.removeItem(
+        "buddhistmala_checkout_draft"
+      );
+    } catch (error) {
+      console.warn("Unable to restore checkout draft:", error);
+    }
+  }, [checkoutMode]);
 
   /* =======================================================
      COUNTRY / STATE
@@ -651,6 +996,101 @@ export default function CheckoutPage() {
 
   const grandTotal =
     subtotal + shippingCost;
+
+  /* =======================================================
+     SYNC NEXT.JS CART WITH WOOCOMMERCE STORE API
+  ======================================================= */
+
+  const syncWooCommerceCart = async () => {
+    if (cart.length === 0) {
+      throw new Error(
+        "Your cart is empty."
+      );
+    }
+
+    /* -----------------------------------------------------
+       1. Create a fresh WooCommerce Store API cart
+    ----------------------------------------------------- */
+
+    const cartResponse = await fetch(
+      "/api/woocommerce-checkout?path=/cart",
+      {
+        method: "GET",
+        headers: {
+          Accept: "application/json",
+        },
+        cache: "no-store",
+      }
+    );
+
+    const cartData =
+      await cartResponse.json().catch(
+        () => null
+      );
+
+    if (!cartResponse.ok) {
+      throw new Error(
+        cartData?.message ||
+          cartData?.error ||
+          "Unable to initialize WooCommerce cart."
+      );
+    }
+
+    const cartToken =
+      cartResponse.headers.get(
+        "Cart-Token"
+      );
+
+    if (!cartToken) {
+      throw new Error(
+        "WooCommerce did not return a Cart-Token."
+      );
+    }
+
+    setWooCartToken(cartToken);
+
+    /* -----------------------------------------------------
+       2. Add each Next.js cart item
+    ----------------------------------------------------- */
+
+    for (const item of cart) {
+      const response =
+        await fetch(
+          "/api/woocommerce-checkout?path=/cart/add-item",
+          {
+            method: "POST",
+
+            headers: {
+              Accept: "application/json",
+              "Content-Type": "application/json",
+              "Cart-Token": cartToken,
+            },
+
+            body: JSON.stringify({
+              id: item.id,
+              quantity: item.quantity,
+            }),
+
+            cache: "no-store",
+          }
+        );
+
+      const data =
+        await response.json().catch(
+          () => null
+        );
+
+      if (!response.ok) {
+        throw new Error(
+          data?.message ||
+            data?.error ||
+            `Unable to add product ${item.id} to WooCommerce cart.`
+        );
+      }
+    }
+
+    return cartToken;
+  };
 
   /* =======================================================
      FORM CHANGE
@@ -705,6 +1145,53 @@ export default function CheckoutPage() {
   };
 
   /* =======================================================
+     BILLING FORM CHANGE
+  ======================================================= */
+
+  const handleBillingChange = (
+    e: React.ChangeEvent<
+      HTMLInputElement |
+        HTMLTextAreaElement |
+        HTMLSelectElement
+    >
+  ) => {
+    const {
+      name,
+      value,
+    } = e.target;
+
+    setBillingForm((prev) => ({
+      ...prev,
+      [name]:
+        name === "country"
+          ? value
+          : value,
+      ...(name === "country"
+        ? { province: "" }
+        : {}),
+    }));
+  };
+
+  const toggleBillingSameAsShipping = (
+    checked: boolean
+  ) => {
+    setBillingSameAsShipping(checked);
+
+    if (!checked) {
+      setBillingForm({
+        firstName: form.firstName,
+        lastName: form.lastName,
+        country: form.country,
+        address: form.address,
+        apartment: form.apartment,
+        city: form.city,
+        province: form.province,
+        postalCode: form.postalCode,
+      });
+    }
+  };
+
+  /* =======================================================
      PAYMENT SELECTOR
   ======================================================= */
 
@@ -731,7 +1218,113 @@ export default function CheckoutPage() {
 
     try {
       /* =====================================================
+         CARD — VALIDATE SECURE PAYMENT ELEMENT FIRST
+
+         IMPORTANT:
+         Do not create a WooCommerce order until Stripe/
+         WooPayments accepts the secure card fields.
+      ===================================================== */
+
+      let stripePaymentMethodId: string | null = null;
+
+      if (paymentMethod === "card") {
+        if (
+          !stripe ||
+          !stripeElements ||
+          !cardElementReady
+        ) {
+          throw new Error(
+            "Secure card fields are not ready yet. Please wait a moment and try again."
+          );
+        }
+
+        const submitResult =
+          await stripeElements.submit();
+
+        if (submitResult.error?.message) {
+          throw new Error(
+            submitResult.error.message
+          );
+        }
+
+        const paymentMethodResult =
+          await stripe.createPaymentMethod({
+            elements: stripeElements,
+            params: {
+              billing_details: {
+                name: `${(
+                  billingSameAsShipping
+                    ? form.firstName
+                    : billingForm.firstName
+                )} ${(
+                  billingSameAsShipping
+                    ? form.lastName
+                    : billingForm.lastName
+                )}`.trim(),
+
+                email: form.email,
+
+                phone: form.phone,
+
+                address: {
+                  line1:
+                    billingSameAsShipping
+                      ? form.address
+                      : billingForm.address,
+
+                  line2:
+                    (billingSameAsShipping
+                      ? form.apartment
+                      : billingForm.apartment) ||
+                    undefined,
+
+                  city:
+                    billingSameAsShipping
+                      ? form.city
+                      : billingForm.city,
+
+                  state:
+                    billingSameAsShipping
+                      ? form.province
+                      : billingForm.province,
+
+                  postal_code:
+                    billingSameAsShipping
+                      ? form.postalCode
+                      : billingForm.postalCode,
+
+                  country: getCountryCode(
+                    billingSameAsShipping
+                      ? form.country
+                      : billingForm.country
+                  ),
+                },
+              },
+            },
+          });
+
+        if (paymentMethodResult.error?.message) {
+          throw new Error(
+            paymentMethodResult.error.message
+          );
+        }
+
+        stripePaymentMethodId =
+          paymentMethodResult.paymentMethod?.id ||
+          null;
+
+        if (!stripePaymentMethodId) {
+          throw new Error(
+            "Stripe did not return a payment method."
+          );
+        }
+      }
+
+      /* =====================================================
          CREATE WOOCOMMERCE ORDER
+
+         Card validation has already succeeded above.
+         Fonepay and PayPal keep their existing flow.
       ===================================================== */
 
       const response = await fetch(
@@ -747,7 +1340,16 @@ export default function CheckoutPage() {
           body: JSON.stringify({
             paymentMethod,
 
-            customer: form,
+            customer: {
+              ...form,
+
+              billingSameAsShipping,
+
+              billing:
+                billingSameAsShipping
+                  ? null
+                  : billingForm,
+            },
 
             items: cart,
 
@@ -852,27 +1454,233 @@ export default function CheckoutPage() {
       }
 
       /* =====================================================
-         INTERNATIONAL — PAYPAL / CARD
+         INTERNATIONAL — PAYPAL
+
+         The order is already created above.
+         Now process that existing order through the
+         WooCommerce Store API using ppcp-gateway.
+
+         IMPORTANT:
+         We do NOT redirect to WooCommerce /checkout/order-pay.
+         The API returns PayPal's own redirect URL directly.
       ===================================================== */
 
-      if (
-        INTERNATIONAL_PAYMENT_METHODS.includes(
-          paymentMethod
-        )
-      ) {
-        const paymentUrl =
-          data.order
-            ?.payment_url;
+      if (paymentMethod === "paypal") {
+  const token =
+    wooCartToken ||
+    await syncWooCommerceCart();
 
-        if (!paymentUrl) {
+  if (!token) {
+    throw new Error(
+      "WooCommerce cart session is missing. Please refresh the checkout and try again."
+    );
+  }
+
+  const paypalResponse = await fetch(
+    "/api/paypal-payment",
+    {
+      method: "POST",
+
+      headers: {
+        "Content-Type": "application/json",
+        "Cart-Token": token,
+      },
+
+      body: JSON.stringify({
+        orderId: data.order.id,
+
+        customer: {
+          ...form,
+
+          billingSameAsShipping,
+
+          billing:
+            billingSameAsShipping
+              ? null
+              : billingForm,
+        },
+
+        paymentData: [],
+      }),
+    }
+  );
+
+  const paypalData =
+    await paypalResponse
+      .json()
+      .catch(() => null);
+
+  if (
+    !paypalResponse.ok ||
+    !paypalData?.success
+  ) {
+    throw new Error(
+      paypalData?.error ||
+        "Unable to start PayPal payment."
+    );
+  }
+
+  const redirectUrl =
+    paypalData.payment?.redirect_url;
+
+  if (!redirectUrl) {
+    throw new Error(
+      "PayPal did not return a payment URL."
+    );
+  }
+
+  window.location.assign(
+    redirectUrl
+  );
+
+  return;
+}
+
+      /* =====================================================
+         INTERNATIONAL — WOOPAYMENTS CARD
+
+         The Stripe PaymentMethod was created BEFORE the
+         WooCommerce order. Now send that PaymentMethod to
+         the existing WooPayments processing route.
+      ===================================================== */
+
+      if (paymentMethod === "card") {
+        if (!stripePaymentMethodId) {
           throw new Error(
-            "WooCommerce did not return a payment URL. Please check the PayPal/WooPayments gateway configuration."
+            "Stripe payment method is missing."
           );
         }
 
-        window.location.assign(
-          paymentUrl
+        const token =
+          wooCartToken ||
+          await syncWooCommerceCart();
+
+        const paymentResponse =
+          await fetch(
+            "/api/woocommerce-payment",
+            {
+              method: "POST",
+
+              headers: {
+                "Content-Type":
+                  "application/json",
+
+                "Cart-Token":
+                  token,
+              },
+
+              body: JSON.stringify({
+                orderId:
+                  data.order.id,
+
+                customer: {
+                  ...form,
+
+                  billingSameAsShipping,
+
+                  billing:
+                    billingSameAsShipping
+                      ? null
+                      : billingForm,
+                },
+
+                paymentData: [
+                  {
+                    key:
+                      "wcpay-payment-method",
+
+                    value:
+                      stripePaymentMethodId,
+                  },
+
+                  {
+                    key:
+                      "billing_email",
+
+                    value:
+                      form.email,
+                  },
+
+                  {
+                    key:
+                      "billing_first_name",
+
+                    value:
+                      billingSameAsShipping
+                        ? form.firstName
+                        : billingForm.firstName,
+                  },
+
+                  {
+                    key:
+                      "billing_last_name",
+
+                    value:
+                      billingSameAsShipping
+                        ? form.lastName
+                        : billingForm.lastName,
+                  },
+
+                  // WooCommerce Store API / payment integrations use this
+                  // value to request tokenization of a new payment method.
+                  {
+                    key:
+                      "save_payment_method",
+
+                    value:
+                      savePaymentMethod
+                        ? "yes"
+                        : "no",
+                  },
+
+                  // Keep the gateway's new-payment-method signal explicit
+                  // for WooPayments when a new card is being created.
+                  {
+                    key:
+                      "wc-woocommerce_payments-new-payment-method",
+
+                    value: true,
+                  },
+                ],
+              }),
+            }
+          );
+
+        const paymentData =
+          await paymentResponse
+            .json()
+            .catch(() => null);
+
+        if (
+          !paymentResponse.ok ||
+          !paymentData?.success
+        ) {
+          throw new Error(
+            paymentData?.error ||
+              "WooPayments could not process the card payment."
+          );
+        }
+
+        const redirectUrl =
+          paymentData.payment
+            ?.redirect_url;
+
+        if (redirectUrl) {
+          window.location.assign(
+            redirectUrl
+          );
+
+          return;
+        }
+
+        setOrderNumber(
+          String(
+            data.order.number ||
+              data.order.id
+          )
         );
+
+        setSubmitted(true);
 
         return;
       }
@@ -895,7 +1703,6 @@ export default function CheckoutPage() {
       setIsSubmitting(false);
     }
   };
-
   /* =======================================================
      EMPTY CART
   ======================================================= */
@@ -1090,6 +1897,172 @@ export default function CheckoutPage() {
             onSubmit={handleSubmit}
             className="grid gap-8 lg:grid-cols-[1fr_430px] xl:gap-12"
           >
+
+            {/* =================================================
+                CHECKOUT ACCOUNT OPTION
+            ================================================= */}
+
+            <div className="lg:col-span-2 rounded-3xl border border-[#E5DDD0] bg-white p-6 shadow-sm md:p-8">
+
+              <div className="flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
+
+                <div>
+                  <p className="text-[10px] font-bold uppercase tracking-[3px] text-[#C89A2A]">
+                    Checkout Options
+                  </p>
+
+                  <h2 className="mt-2 text-xl font-bold text-[#1A1A1A]">
+                    How would you like to checkout?
+                  </h2>
+
+                  <p className="mt-2 text-sm leading-6 text-[#777]">
+                    Sign in to use your account or continue as a guest without creating an account.
+                  </p>
+                </div>
+
+                {checkoutMode === "guest" && (
+                  <button
+                    type="button"
+                    onClick={() => setCheckoutMode("choice")}
+                    className="text-sm font-semibold text-[#C89A2A] hover:text-[#A9821D]"
+                  >
+                    Change
+                  </button>
+                )}
+
+              </div>
+
+              {isAuthLoading && (
+                <div className="mt-6 flex items-center gap-3 rounded-xl bg-[#FAF8F4] px-4 py-4 text-sm text-[#777]">
+                  <span className="h-4 w-4 animate-spin rounded-full border-2 border-[#C89A2A]/30 border-t-[#C89A2A]" />
+                  Checking your account...
+                </div>
+              )}
+
+              {checkoutMode === "authenticated" && !isAuthLoading && (
+                <div className="mt-6 flex flex-col gap-4 rounded-2xl border border-[#DCEBDD] bg-[#F5F8F5] p-5 sm:flex-row sm:items-center sm:justify-between">
+                  <div className="flex items-center gap-4">
+                    <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-white text-[#C89A2A] shadow-sm">
+                      <span className="text-lg">👤</span>
+                    </div>
+                    <div>
+                      <p className="font-bold text-[#222]">
+                        Welcome back{customerName ? `, ${customerName}` : ""}!
+                      </p>
+                      <p className="mt-1 text-xs leading-5 text-[#5F7662]">
+                        You are signed in. Your account information has been loaded automatically.
+                      </p>
+                    </div>
+                  </div>
+
+                  <Link
+                    href="/account"
+                    className="text-sm font-semibold text-[#C89A2A] hover:text-[#A9821D]"
+                  >
+                    My Account →
+                  </Link>
+                </div>
+              )}
+
+              {checkoutMode === "choice" && !isAuthLoading && (
+                <div className="mt-6 grid gap-4 md:grid-cols-2">
+
+                  {/* SIGN IN */}
+
+                  <Link
+                    href="/account/login?redirect=/checkout"
+                    onClick={saveCheckoutDraft}
+                    className="
+                      group
+                      rounded-2xl
+                      border
+                      border-[#DDD4C5]
+                      bg-white
+                      p-5
+                      transition-all
+                      hover:-translate-y-[1px]
+                      hover:border-[#C89A2A]
+                      hover:bg-[#FCF8EF]
+                      hover:shadow-sm
+                    "
+                  >
+                    <div className="flex items-start gap-4">
+
+                      <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-[#F4EAD7] text-[#C89A2A]">
+                        <span className="text-lg">👤</span>
+                      </div>
+
+                      <div>
+                        <p className="font-bold text-[#222]">
+                          Sign In
+                        </p>
+
+                        <p className="mt-1 text-xs leading-5 text-[#888]">
+                          Already have an account? Sign in to continue with your account.
+                        </p>
+
+                        <span className="mt-3 inline-block text-xs font-bold text-[#C89A2A]">
+                          Sign In →
+                        </span>
+                      </div>
+
+                    </div>
+                  </Link>
+
+                  {/* GUEST */}
+
+                  <button
+                    type="button"
+                    onClick={() => setCheckoutMode("guest")}
+                    className="
+                      group
+                      rounded-2xl
+                      border
+                      border-[#C89A2A]
+                      bg-[#FCF8EF]
+                      p-5
+                      text-left
+                      transition-all
+                      hover:-translate-y-[1px]
+                      hover:shadow-sm
+                    "
+                  >
+                    <div className="flex items-start gap-4">
+
+                      <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-white text-[#C89A2A] shadow-sm">
+                        <span className="text-lg">🛍️</span>
+                      </div>
+
+                      <div>
+                        <p className="font-bold text-[#222]">
+                          Continue as Guest
+                        </p>
+
+                        <p className="mt-1 text-xs leading-5 text-[#888]">
+                          Checkout quickly without creating or using an account.
+                        </p>
+
+                        <span className="mt-3 inline-block text-xs font-bold text-[#C89A2A]">
+                          Continue as Guest →
+                        </span>
+                      </div>
+
+                    </div>
+                  </button>
+
+                </div>
+              )}
+
+              {checkoutMode === "guest" && (
+                <div className="mt-5 flex items-center gap-3 rounded-xl bg-[#F5F8F5] px-4 py-3 text-xs text-[#4D7552]">
+                  <FiCheck size={15} />
+                  <span>
+                    You are checking out as a guest. No account is required.
+                  </span>
+                </div>
+              )}
+
+            </div>
 
             {/* =================================================
                 LEFT
@@ -1324,12 +2297,193 @@ export default function CheckoutPage() {
 
               </div>
 
+              {/* BILLING ADDRESS */}
+
+              <div className="rounded-3xl border border-[#E5DDD0] bg-white p-6 shadow-sm md:p-8">
+
+                <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+
+                  <SectionHeading
+                    number="3"
+                    eyebrow="Billing"
+                    title="Billing Address"
+                  />
+
+                  <label className="flex cursor-pointer items-center gap-2 text-sm font-medium text-[#444]">
+                    <input
+                      type="checkbox"
+                      checked={billingSameAsShipping}
+                      onChange={(e) =>
+                        toggleBillingSameAsShipping(
+                          e.target.checked
+                        )
+                      }
+                      className="h-4 w-4 accent-[#C89A2A]"
+                    />
+                    Same as shipping address
+                  </label>
+
+                </div>
+
+                {billingSameAsShipping ? (
+                  <div className="mt-6 flex items-start gap-3 rounded-2xl border border-[#DCEBDD] bg-[#F5F8F5] p-4">
+                    <FiCheck className="mt-0.5 shrink-0 text-[#2E7D32]" size={18} />
+                    <div>
+                      <p className="text-sm font-semibold text-[#222]">
+                        Billing address matches shipping address
+                      </p>
+                      <p className="mt-1 text-xs leading-5 text-[#5F7662]">
+                        Your shipping address will be used automatically for billing and card verification.
+                      </p>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="mt-6 space-y-5">
+                    <div className="rounded-2xl border border-[#E8DFD2] bg-[#FAF8F4] p-4">
+                      <p className="text-sm font-semibold text-[#222]">
+                        Enter your billing address
+                      </p>
+                      <p className="mt-1 text-xs leading-5 text-[#888]">
+                        Enter the address registered with your card or payment provider.
+                      </p>
+                    </div>
+
+                    <div className="grid gap-5 md:grid-cols-2">
+                      <Input
+                        label="First Name"
+                        name="firstName"
+                        value={billingForm.firstName}
+                        onChange={handleBillingChange}
+                        required
+                      />
+
+                      <Input
+                        label="Last Name"
+                        name="lastName"
+                        value={billingForm.lastName}
+                        onChange={handleBillingChange}
+                        required
+                      />
+                    </div>
+
+                    <div>
+                      <label
+                        htmlFor="billing-country"
+                        className="mb-2 block text-sm font-medium text-[#444]"
+                      >
+                        Country
+                        <span className="ml-1 text-red-500">*</span>
+                      </label>
+
+                      <div className="relative">
+                        <FiGlobe
+                          className="pointer-events-none absolute left-4 top-1/2 z-10 -translate-y-1/2 text-[#999]"
+                          size={17}
+                        />
+
+                        <select
+                          id="billing-country"
+                          name="country"
+                          value={billingForm.country}
+                          onChange={handleBillingChange}
+                          required
+                          className="
+                            h-13
+                            w-full
+                            appearance-none
+                            rounded-xl
+                            border
+                            border-[#DDD4C5]
+                            bg-white
+                            pl-11
+                            pr-12
+                            text-sm
+                            text-[#222]
+                            outline-none
+                            transition
+                            focus:border-[#C89A2A]
+                            focus:ring-2
+                            focus:ring-[#C89A2A]/10
+                          "
+                        >
+                          {COUNTRIES.map((country) => (
+                            <option
+                              key={`billing-${country}`}
+                              value={country}
+                            >
+                              {country}
+                            </option>
+                          ))}
+                        </select>
+
+                        <span className="pointer-events-none absolute right-4 top-1/2 z-10 -translate-y-1/2 text-[#777]">
+                          <FiChevronDown size={18} />
+                        </span>
+                      </div>
+                    </div>
+
+                    <Input
+                      label="Street Address"
+                      name="address"
+                      value={billingForm.address}
+                      onChange={handleBillingChange}
+                      required
+                    />
+
+                    <Input
+                      label="Apartment, Suite, etc. (Optional)"
+                      name="apartment"
+                      value={billingForm.apartment}
+                      onChange={handleBillingChange}
+                    />
+
+                    <div className="grid gap-5 md:grid-cols-3">
+                      <Input
+                        label="City"
+                        name="city"
+                        value={billingForm.city}
+                        onChange={handleBillingChange}
+                        required
+                      />
+
+                      {(STATES_BY_COUNTRY[billingForm.country] || []).length > 0 ? (
+                        <SelectInput
+                          label="State / Province"
+                          name="province"
+                          value={billingForm.province}
+                          options={STATES_BY_COUNTRY[billingForm.country]}
+                          placeholder="Select"
+                          onChange={handleBillingChange}
+                          required
+                        />
+                      ) : (
+                        <Input
+                          label="State / Province"
+                          name="province"
+                          value={billingForm.province}
+                          onChange={handleBillingChange}
+                          required
+                        />
+                      )}
+
+                      <Input
+                        label="Postal Code"
+                        name="postalCode"
+                        value={billingForm.postalCode}
+                        onChange={handleBillingChange}
+                      />
+                    </div>
+                  </div>
+                )}
+
+              </div>
+
               {/* SHIPPING */}
 
               <div className="rounded-3xl border border-[#E5DDD0] bg-white p-6 shadow-sm md:p-8">
 
                 <SectionHeading
-                  number="2"
+                  number="4"
                   eyebrow="Delivery"
                   title="Shipping Method"
                 />
@@ -1366,125 +2520,6 @@ export default function CheckoutPage() {
                         "express"
                       )
                     }
-                  />
-
-                </div>
-
-              </div>
-
-              {/* PAYMENT */}
-
-              <div className="rounded-3xl border border-[#E5DDD0] bg-white p-6 shadow-sm md:p-8">
-
-                <div className="flex items-center justify-between gap-4">
-
-                  <SectionHeading
-                    number="3"
-                    eyebrow="Secure Payment"
-                    title="Choose Payment Method"
-                  />
-
-                  <div className="hidden items-center gap-2 rounded-full bg-[#F5F8F5] px-3 py-2 text-xs font-medium text-[#4D7552] sm:flex">
-                    <FiLock size={13} />
-                    Secure
-                  </div>
-
-                </div>
-
-                <div className="mt-3 rounded-xl bg-[#FAF8F4] px-4 py-3 text-xs leading-5 text-[#777]">
-
-                  {isNepal
-                    ? "You are ordering from Nepal. Pay securely with Fonepay."
-                    : "You are ordering internationally. Choose PayPal or Credit / Debit Card."
-                  }
-
-                </div>
-
-                <div className="mt-5 space-y-3">
-
-                  {/* NEPAL */}
-
-                  {isNepal && (
-                    <PaymentOption
-                      selected={
-                        paymentMethod ===
-                        "fonepay"
-                      }
-                      value="fonepay"
-                      title="Fonepay"
-                      description="Pay securely through Fonepay."
-                      logo="/payments/fonepay.png"
-                      onChange={() =>
-                        handlePaymentChange(
-                          "fonepay"
-                        )
-                      }
-                    />
-                  )}
-
-                  {/* INTERNATIONAL */}
-
-                  {!isNepal && (
-                    <>
-                      <PaymentOption
-                        selected={
-                          paymentMethod ===
-                          "paypal"
-                        }
-                        value="paypal"
-                        title="PayPal"
-                        description="Pay securely using your PayPal account."
-                        logo="/payments/paypal.png"
-                        onChange={() =>
-                          handlePaymentChange(
-                            "paypal"
-                          )
-                        }
-                      />
-
-                      <PaymentOption
-                        selected={
-                          paymentMethod ===
-                          "card"
-                        }
-                        value="card"
-                        title="Credit / Debit Card"
-                        description="Secure card payment powered by WooPayments."
-                        logo="/payments/card.png"
-                        onChange={() =>
-                          handlePaymentChange(
-                            "card"
-                          )
-                        }
-                      />
-                    </>
-                  )}
-
-                </div>
-
-                {/* SECURITY */}
-
-                <div className="mt-6 grid gap-3 sm:grid-cols-3">
-
-                  <SecurityBadge
-                    icon={
-                      <FiLock size={15} />
-                    }
-                    text="Secure Checkout"
-                  />
-
-                  <SecurityBadge
-                    icon={
-                      <FiShield size={15} />
-                    }
-                    text="Protected Payment"
-                  />
-
-                  <SecurityBadge
-                    icon={
-                      <FiCheck size={15} />
-                    }
-                    text="Trusted Gateway"
                   />
 
                 </div>
@@ -1659,19 +2694,143 @@ export default function CheckoutPage() {
 
               </div>
 
-              {/* PAYMENT */}
+              {/* PAYMENT METHOD */}
 
-              <div className="mt-5 rounded-2xl bg-[#FCF8EF] p-4">
+              <div className="mt-6">
 
-                <p className="text-[10px] font-bold uppercase tracking-[2px] text-[#9B7822]">
-                  Payment
-                </p>
+                <div className="flex items-center justify-between gap-4">
 
-                <p className="mt-1 text-sm font-bold text-[#222]">
-                  {getPaymentTitle(
-                    paymentMethod
+                  <SectionHeading
+                    number="5"
+                    eyebrow="Secure Payment"
+                    title="Choose Payment Method"
+                  />
+
+                  <div className="hidden items-center gap-2 rounded-full bg-[#F5F8F5] px-3 py-2 text-xs font-medium text-[#4D7552] sm:flex">
+                    <FiLock size={13} />
+                    Secure
+                  </div>
+
+                </div>
+
+                <div className="mt-3 rounded-xl bg-[#FAF8F4] px-4 py-3 text-xs leading-5 text-[#777]">
+
+                  {isNepal
+                    ? "You are ordering from Nepal. Pay securely with Fonepay."
+                    : "You are ordering internationally. Choose PayPal or Credit / Debit Card."
+                  }
+
+                </div>
+
+                <div className="mt-5 space-y-3">
+
+                  {/* NEPAL */}
+
+                  {isNepal && (
+                    <PaymentOption
+                      selected={
+                        paymentMethod ===
+                        "fonepay"
+                      }
+                      value="fonepay"
+                      title="Fonepay"
+                      description="Pay securely through Fonepay."
+                      logo="/payments/fonepay.png"
+                      onChange={() =>
+                        handlePaymentChange(
+                          "fonepay"
+                        )
+                      }
+                    />
                   )}
-                </p>
+
+                  {/* INTERNATIONAL */}
+
+                  {!isNepal && (
+                    <>
+                      <PaymentOption
+                        selected={
+                          paymentMethod ===
+                          "paypal"
+                        }
+                        value="paypal"
+                        title="PayPal"
+                        description="Pay securely using your PayPal account."
+                        logo="/payments/paypal.png"
+                        onChange={() =>
+                          handlePaymentChange(
+                            "paypal"
+                          )
+                        }
+                      />
+
+                      <PaymentOption
+                        selected={
+                          paymentMethod ===
+                          "card"
+                        }
+                        value="card"
+                        title="Credit / Debit Card"
+                        description="Secure card payment powered by WooPayments."
+                        logo="/payments/card.png"
+                        onChange={() =>
+                          handlePaymentChange(
+                            "card"
+                          )
+                        }
+                      />
+
+                      {paymentMethod === "card" && (
+                        <div className="rounded-2xl border border-[#E5DDD0] bg-[#FAF8F4] p-4 md:p-5">
+                          <div className="mb-3 flex items-center justify-between gap-3">
+                            <div>
+                              <p className="text-sm font-bold text-[#222]">
+                                Card Details
+                              </p>
+                              <p className="mt-1 text-xs text-[#888]">
+                                Your card details are securely handled by Stripe through WooPayments.
+                              </p>
+                            </div>
+                            <FiLock className="shrink-0 text-[#C89A2A]" size={17} />
+                          </div>
+                          <div
+                            ref={cardElementRef}
+                            className="min-h-[120px] rounded-xl bg-white p-3"
+                          />
+                          {!cardElementReady && (
+                            <p className="mt-3 text-xs text-[#999]">
+                              Loading secure card fields…
+                            </p>
+                          )}
+
+                          {checkoutMode === "authenticated" && (
+                            <label className="mt-4 flex cursor-pointer items-start gap-3 rounded-xl border border-[#E5DDD0] bg-white px-4 py-3">
+                              <input
+                                type="checkbox"
+                                checked={savePaymentMethod}
+                                onChange={(event) =>
+                                  setSavePaymentMethod(event.target.checked)
+                                }
+                                disabled={isSubmitting}
+                                className="mt-0.5 h-4 w-4 shrink-0 accent-[#C89A2A]"
+                              />
+
+                              <span>
+                                <span className="block text-sm font-semibold text-[#222]">
+                                  Save payment method
+                                </span>
+                                <span className="mt-1 block text-xs leading-5 text-[#777]">
+                                  Securely save this card to your account for faster future purchases. Your card number and security code are not stored on our website.
+                                </span>
+                              </span>
+                            </label>
+                          )}
+                        </div>
+                      )}
+                    </>
+                  )}
+
+                </div>
 
               </div>
 
@@ -2173,6 +3332,65 @@ function SecurityBadge({
 }
 
 /* =========================================================
+   COUNTRY CODE
+========================================================= */
+
+function getCountryCode(country: string) {
+  const map: Record<string, string> = {
+    Nepal: "NP",
+    Australia: "AU",
+    Canada: "CA",
+    India: "IN",
+    Japan: "JP",
+    China: "CN",
+    Germany: "DE",
+    Brazil: "BR",
+    Mexico: "MX",
+    "United Kingdom": "GB",
+    "United States": "US",
+    Afghanistan: "AF",
+    Albania: "AL",
+    Algeria: "DZ",
+    Andorra: "AD",
+    Austria: "AT",
+    Belgium: "BE",
+    Bhutan: "BT",
+    Bangladesh: "BD",
+    Cambodia: "KH",
+    Denmark: "DK",
+    Finland: "FI",
+    France: "FR",
+    Greece: "GR",
+    Indonesia: "ID",
+    Ireland: "IE",
+    Israel: "IL",
+    Italy: "IT",
+    Malaysia: "MY",
+    Maldives: "MV",
+    Netherlands: "NL",
+    "New Zealand": "NZ",
+    Norway: "NO",
+    Pakistan: "PK",
+    Philippines: "PH",
+    Poland: "PL",
+    Portugal: "PT",
+    Qatar: "QA",
+    "Saudi Arabia": "SA",
+    Singapore: "SG",
+    "South Korea": "KR",
+    Spain: "ES",
+    "Sri Lanka": "LK",
+    Sweden: "SE",
+    Switzerland: "CH",
+    Thailand: "TH",
+    "United Arab Emirates": "AE",
+    Vietnam: "VN",
+  };
+
+  return map[country] || "US";
+}
+
+/* =========================================================
    PAYMENT TITLE
 ========================================================= */
 
@@ -2206,10 +3424,10 @@ function getButtonText(
       return "Pay with Fonepay";
 
     case "paypal":
-      return "Continue to PayPal";
+      return "Pay with PayPal";
 
     case "card":
-      return "Continue to Card Payment";
+      return "Pay Securely by Card";
 
     default:
       return "Continue to Payment";

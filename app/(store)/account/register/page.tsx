@@ -1,7 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import { FormEvent, useState } from "react";
+import {
+  FormEvent,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import {
   Eye,
   EyeOff,
@@ -10,23 +15,224 @@ import {
   User,
 } from "lucide-react";
 
+declare global {
+  interface Window {
+    turnstile?: {
+      render: (
+        container: HTMLElement,
+        options: {
+          sitekey: string;
+          theme?: "auto" | "light" | "dark";
+          action?: string;
+          callback?: (token: string) => void;
+          "expired-callback"?: () => void;
+          "error-callback"?: () => void;
+        }
+      ) => string;
+
+      reset: (widgetId?: string) => void;
+
+      remove: (widgetId?: string) => void;
+    };
+  }
+}
+
 export default function RegisterPage() {
-  const [firstName, setFirstName] = useState("");
-  const [lastName, setLastName] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [firstName, setFirstName] =
+    useState("");
+  const [lastName, setLastName] =
+    useState("");
+  const [email, setEmail] =
+    useState("");
+  const [password, setPassword] =
+    useState("");
   const [confirmPassword, setConfirmPassword] =
     useState("");
 
   const [showPassword, setShowPassword] =
     useState(false);
 
-  const [showConfirmPassword, setShowConfirmPassword] =
+  const [
+    showConfirmPassword,
+    setShowConfirmPassword,
+  ] = useState(false);
+
+  const [loading, setLoading] =
     useState(false);
 
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
+  const [error, setError] =
+    useState("");
+
+  const [success, setSuccess] =
+    useState("");
+
+  /* =========================================================
+     TURNSTILE
+  ========================================================= */
+
+  const turnstileContainerRef =
+    useRef<HTMLDivElement | null>(null);
+
+  const turnstileWidgetIdRef =
+    useRef<string | null>(null);
+
+  const [turnstileToken, setTurnstileToken] =
+    useState("");
+
+  const [turnstileReady, setTurnstileReady] =
+    useState(false);
+
+  const turnstileSiteKey =
+    process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY;
+
+  /* =========================================================
+     LOAD CLOUDFLARE TURNSTILE
+  ========================================================= */
+
+  useEffect(() => {
+    if (!turnstileSiteKey) {
+      console.error(
+        "NEXT_PUBLIC_TURNSTILE_SITE_KEY is missing."
+      );
+
+      return;
+    }
+
+    function renderTurnstile() {
+      if (
+        !window.turnstile ||
+        !turnstileContainerRef.current ||
+        turnstileWidgetIdRef.current !== null
+      ) {
+        return;
+      }
+
+      const widgetId =
+        window.turnstile.render(
+          turnstileContainerRef.current,
+          {
+            sitekey: turnstileSiteKey!,
+
+            theme: "auto",
+
+            action: "register",
+
+            callback: (token: string) => {
+              setTurnstileToken(token);
+              setError("");
+            },
+
+            "expired-callback": () => {
+              setTurnstileToken("");
+
+              setError(
+                "Human verification expired. Please verify again."
+              );
+            },
+
+            "error-callback": () => {
+              setTurnstileToken("");
+
+              setError(
+                "Human verification failed. Please try again."
+              );
+            },
+          }
+        );
+
+      turnstileWidgetIdRef.current =
+        widgetId;
+
+      setTurnstileReady(true);
+    }
+
+    /* =======================================================
+       TURNSTILE ALREADY LOADED
+    ======================================================= */
+
+    if (window.turnstile) {
+      renderTurnstile();
+
+      return;
+    }
+
+    /* =======================================================
+       CHECK FOR EXISTING SCRIPT
+    ======================================================= */
+
+    const existingScript =
+      document.querySelector(
+        'script[src^="https://challenges.cloudflare.com/turnstile/v0/api.js"]'
+      );
+
+    if (existingScript) {
+      existingScript.addEventListener(
+        "load",
+        renderTurnstile
+      );
+
+      return () => {
+        existingScript.removeEventListener(
+          "load",
+          renderTurnstile
+        );
+      };
+    }
+
+    /* =======================================================
+       LOAD TURNSTILE SCRIPT
+    ======================================================= */
+
+    const script =
+      document.createElement("script");
+
+    script.src =
+      "https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit";
+
+    script.async = true;
+    script.defer = true;
+
+    script.addEventListener(
+      "load",
+      renderTurnstile
+    );
+
+    document.head.appendChild(script);
+
+    return () => {
+      script.removeEventListener(
+        "load",
+        renderTurnstile
+      );
+    };
+  }, [turnstileSiteKey]);
+
+  /* =========================================================
+     CLEAN UP TURNSTILE
+  ========================================================= */
+
+  useEffect(() => {
+    return () => {
+      if (
+        window.turnstile &&
+        turnstileWidgetIdRef.current
+      ) {
+        try {
+          window.turnstile.remove(
+            turnstileWidgetIdRef.current
+          );
+        } catch {
+          // Ignore cleanup errors.
+        }
+      }
+
+      turnstileWidgetIdRef.current = null;
+    };
+  }, []);
+
+  /* =========================================================
+     REGISTER SUBMIT
+  ========================================================= */
 
   async function handleSubmit(
     event: FormEvent<HTMLFormElement>
@@ -36,22 +242,58 @@ export default function RegisterPage() {
     setError("");
     setSuccess("");
 
-    /* =====================================================
+    /* =======================================================
        VALIDATION
-    ===================================================== */
+    ======================================================= */
 
-    if (!firstName.trim()) {
-      setError("Please enter your first name.");
+    const trimmedFirstName =
+      firstName.trim();
+
+    const trimmedLastName =
+      lastName.trim();
+
+    const trimmedEmail =
+      email.trim();
+
+    if (!trimmedFirstName) {
+      setError(
+        "Please enter your first name."
+      );
       return;
     }
 
-    if (!lastName.trim()) {
-      setError("Please enter your last name.");
+    if (!trimmedLastName) {
+      setError(
+        "Please enter your last name."
+      );
       return;
     }
 
-    if (!email.trim()) {
-      setError("Please enter your email address.");
+    if (!trimmedEmail) {
+      setError(
+        "Please enter your email address."
+      );
+      return;
+    }
+
+    if (trimmedFirstName.length > 50) {
+      setError(
+        "First name must be 50 characters or fewer."
+      );
+      return;
+    }
+
+    if (trimmedLastName.length > 50) {
+      setError(
+        "Last name must be 50 characters or fewer."
+      );
+      return;
+    }
+
+    if (trimmedEmail.length > 254) {
+      setError(
+        "Email address is too long."
+      );
       return;
     }
 
@@ -63,13 +305,27 @@ export default function RegisterPage() {
     }
 
     if (password !== confirmPassword) {
-      setError("Passwords do not match.");
+      setError(
+        "Passwords do not match."
+      );
       return;
     }
 
-    /* =====================================================
+    /* =======================================================
+       TURNSTILE VALIDATION
+    ======================================================= */
+
+    if (!turnstileToken) {
+      setError(
+        "Please complete the human verification before creating your account."
+      );
+
+      return;
+    }
+
+    /* =======================================================
        REGISTER
-    ===================================================== */
+    ======================================================= */
 
     setLoading(true);
 
@@ -80,23 +336,36 @@ export default function RegisterPage() {
           method: "POST",
 
           headers: {
-            "Content-Type": "application/json",
+            "Content-Type":
+              "application/json",
           },
 
           credentials: "include",
 
           body: JSON.stringify({
-            first_name: firstName.trim(),
-            last_name: lastName.trim(),
-            email: email.trim(),
+            first_name:
+              trimmedFirstName,
+
+            last_name:
+              trimmedLastName,
+
+            email:
+              trimmedEmail,
+
             password,
+
+            turnstileToken,
           }),
         }
       );
 
-      const data = await response.json();
+      const data =
+        await response.json();
 
-      if (!response.ok || !data.success) {
+      if (
+        !response.ok ||
+        !data.success
+      ) {
         throw new Error(
           data.error ||
             "Unable to create your account."
@@ -128,10 +397,33 @@ export default function RegisterPage() {
           : "Unable to create your account. Please try again."
       );
 
+      /* ===================================================
+         RESET TURNSTILE AFTER FAILED REQUEST
+      =================================================== */
+
+      setTurnstileToken("");
+
+      if (
+        window.turnstile &&
+        turnstileWidgetIdRef.current
+      ) {
+        try {
+          window.turnstile.reset(
+            turnstileWidgetIdRef.current
+          );
+        } catch {
+          // Ignore reset errors.
+        }
+      }
+
     } finally {
       setLoading(false);
     }
   }
+
+  /* =========================================================
+     RENDER
+  ========================================================= */
 
   return (
     <main className="min-h-screen bg-[#faf8f4]">
@@ -159,8 +451,9 @@ export default function RegisterPage() {
               </h1>
 
               <p className="mt-3 text-sm leading-6 text-gray-500">
-                Create an account to manage your
-                orders, addresses and purchases.
+                Create an account to manage
+                your orders, addresses and
+                purchases.
               </p>
 
             </div>
@@ -221,9 +514,11 @@ export default function RegisterPage() {
 
                     <input
                       id="firstName"
+                      name="first_name"
                       type="text"
                       autoComplete="given-name"
                       required
+                      maxLength={50}
                       value={firstName}
                       onChange={(event) =>
                         setFirstName(
@@ -251,9 +546,11 @@ export default function RegisterPage() {
 
                   <input
                     id="lastName"
+                    name="last_name"
                     type="text"
                     autoComplete="family-name"
                     required
+                    maxLength={50}
                     value={lastName}
                     onChange={(event) =>
                       setLastName(
@@ -291,9 +588,11 @@ export default function RegisterPage() {
 
                   <input
                     id="email"
+                    name="email"
                     type="email"
                     autoComplete="email"
                     required
+                    maxLength={254}
                     value={email}
                     onChange={(event) =>
                       setEmail(
@@ -331,6 +630,7 @@ export default function RegisterPage() {
 
                   <input
                     id="password"
+                    name="password"
                     type={
                       showPassword
                         ? "text"
@@ -372,8 +672,8 @@ export default function RegisterPage() {
                 </div>
 
                 <p className="mt-2 text-xs text-gray-500">
-                  Password must contain at least
-                  8 characters.
+                  Password must contain at
+                  least 8 characters.
                 </p>
 
               </div>
@@ -401,6 +701,7 @@ export default function RegisterPage() {
 
                   <input
                     id="confirmPassword"
+                    name="confirm_password"
                     type={
                       showConfirmPassword
                         ? "text"
@@ -444,13 +745,26 @@ export default function RegisterPage() {
               </div>
 
               {/* =================================================
+                  HUMAN VERIFICATION
+              ================================================= */}
+
+              <div className="flex justify-center pt-1">
+                <div
+                  ref={
+                    turnstileContainerRef
+                  }
+                  className="min-h-[65px]"
+                />
+              </div>
+
+              {/* =================================================
                   TERMS
               ================================================= */}
 
               <p className="text-xs leading-5 text-gray-500">
-                By creating an account, you agree
-                to our terms and conditions and
-                privacy policy.
+                By creating an account, you
+                agree to our terms and
+                conditions and privacy policy.
               </p>
 
               {/* =================================================
@@ -459,7 +773,11 @@ export default function RegisterPage() {
 
               <button
                 type="submit"
-                disabled={loading}
+                disabled={
+                  loading ||
+                  !turnstileReady ||
+                  !turnstileToken
+                }
                 className="w-full rounded-xl bg-[#C89A2A] px-6 py-3.5 text-sm font-semibold text-white shadow-sm transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
               >
                 {loading

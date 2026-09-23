@@ -28,27 +28,69 @@ export function CartProvider({
 }: {
   children: ReactNode;
 }) {
-  /* ---------------- State ---------------- */
-
   const [cart, setCart] =
     useState<CartItem[]>([]);
+
+  const [isCartHydrated, setIsCartHydrated] =
+    useState(false);
 
   const [isCartOpen, setIsCartOpen] =
     useState(false);
 
-  /* ---------------- Load Cart ---------------- */
+  /* =======================================================
+     LOAD SAVED CART
+  ======================================================= */
 
   useEffect(() => {
-    setCart(loadCart());
+    try {
+      const storedCart = loadCart();
+
+      setCart(
+        Array.isArray(storedCart)
+          ? storedCart
+          : []
+      );
+    } catch (error) {
+      console.error(
+        "Unable to load cart:",
+        error
+      );
+
+      setCart([]);
+    } finally {
+      setIsCartHydrated(true);
+    }
   }, []);
 
-  /* ---------------- Save Cart ---------------- */
+  /* =======================================================
+     SAVE CART
+
+     IMPORTANT:
+     Do not save until the original cart has been loaded.
+     This prevents [] from overwriting localStorage.
+  ======================================================= */
 
   useEffect(() => {
-    saveCart(cart);
-  }, [cart]);
+    if (!isCartHydrated) {
+      return;
+    }
 
-  /* ---------------- Drawer ---------------- */
+    try {
+      saveCart(cart);
+    } catch (error) {
+      console.error(
+        "Unable to save cart:",
+        error
+      );
+    }
+  }, [
+    cart,
+    isCartHydrated,
+  ]);
+
+  /* =======================================================
+     CART DRAWER
+  ======================================================= */
 
   const openCart = () => {
     setIsCartOpen(true);
@@ -59,10 +101,14 @@ export function CartProvider({
   };
 
   const toggleCart = () => {
-    setIsCartOpen((prev) => !prev);
+    setIsCartOpen(
+      (previous) => !previous
+    );
   };
 
-  /* ---------------- Add Cart ---------------- */
+  /* =======================================================
+     ADD TO CART
+  ======================================================= */
 
   const addToCart = (
     product: Product,
@@ -70,64 +116,74 @@ export function CartProvider({
   ) => {
     setIsCartOpen(true);
 
-    setCart((prev) => {
-      const existing = prev.find(
-        (item) => item.id === product.id
-      );
-
-      /* Existing product */
+    setCart((previousCart) => {
+      const existing =
+        previousCart.find(
+          (item) =>
+            item.id === product.id
+        );
 
       if (existing) {
         const newQuantity =
-          existing.quantity + quantity;
+          existing.quantity +
+          quantity;
 
         const maxStock =
-          product.stock ?? newQuantity;
+          product.stock ??
+          newQuantity;
 
-        return prev.map((item) =>
-          item.id === product.id
-            ? {
-                ...item,
-                quantity: Math.min(
-                  newQuantity,
-                  maxStock
-                ),
-              }
-            : item
+        return previousCart.map(
+          (item) =>
+            item.id === product.id
+              ? {
+                  ...item,
+                  quantity:
+                    Math.min(
+                      newQuantity,
+                      maxStock
+                    ),
+                }
+              : item
         );
       }
 
-      /* New product */
-
       const maxStock =
-        product.stock ?? quantity;
+        product.stock ??
+        quantity;
 
       return [
-        ...prev,
+        ...previousCart,
         {
           ...product,
-          quantity: Math.min(
-            quantity,
-            maxStock
-          ),
+          quantity:
+            Math.min(
+              quantity,
+              maxStock
+            ),
         },
       ];
     });
   };
 
-  /* ---------------- Remove ---------------- */
+  /* =======================================================
+     REMOVE
+  ======================================================= */
 
   const removeFromCart = (
     id: number
   ) => {
-    setCart((prev) =>
-      prev.filter(
-        (item) => item.id !== id
-      )
+    setCart(
+      (previousCart) =>
+        previousCart.filter(
+          (item) =>
+            item.id !== id
+        )
     );
   };
 
-  /* ---------------- Update Qty ---------------- */
+  /* =======================================================
+     UPDATE QUANTITY
+  ======================================================= */
 
   const updateQuantity = (
     id: number,
@@ -138,34 +194,43 @@ export function CartProvider({
       return;
     }
 
-    setCart((prev) =>
-      prev.map((item) =>
-        item.id === id
-          ? {
-              ...item,
-              quantity: Math.min(
-                quantity,
-                item.stock ?? quantity
-              ),
-            }
-          : item
-      )
+    setCart(
+      (previousCart) =>
+        previousCart.map(
+          (item) =>
+            item.id === id
+              ? {
+                  ...item,
+                  quantity:
+                    Math.min(
+                      quantity,
+                      item.stock ??
+                        quantity
+                    ),
+                }
+              : item
+        )
     );
   };
 
-  /* ---------------- Clear ---------------- */
+  /* =======================================================
+     CLEAR CART
+  ======================================================= */
 
   const clearCart = () => {
     setCart([]);
   };
 
-  /* ---------------- Summary ---------------- */
+  /* =======================================================
+     SUMMARY
+  ======================================================= */
 
   const cartCount = useMemo(
     () =>
       cart.reduce(
-        (sum, item) =>
-          sum + item.quantity,
+        (total, item) =>
+          total +
+          item.quantity,
         0
       ),
     [cart]
@@ -174,8 +239,8 @@ export function CartProvider({
   const subtotal = useMemo(
     () =>
       cart.reduce(
-        (sum, item) =>
-          sum +
+        (total, item) =>
+          total +
           item.price *
             item.quantity,
         0
@@ -183,35 +248,43 @@ export function CartProvider({
     [cart]
   );
 
-  /* ---------------- Helpers ---------------- */
+  /* =======================================================
+     HELPERS
+  ======================================================= */
 
   const isInCart = (
     id: number
-  ) => {
-    return cart.some(
-      (item) => item.id === id
+  ) =>
+    cart.some(
+      (item) =>
+        item.id === id
     );
-  };
 
   const getQuantity = (
     id: number
   ) => {
-    const item = cart.find(
-      (i) => i.id === id
-    );
+    const item =
+      cart.find(
+        (cartItem) =>
+          cartItem.id === id
+      );
 
-    return item?.quantity ?? 0;
+    return (
+      item?.quantity ?? 0
+    );
   };
 
   const getItem = (
     id: number
-  ) => {
-    return cart.find(
-      (item) => item.id === id
+  ) =>
+    cart.find(
+      (item) =>
+        item.id === id
     );
-  };
 
-  /* ---------------- Context ---------------- */
+  /* =======================================================
+     CONTEXT
+  ======================================================= */
 
   const value: CartContextType = {
     cart,
@@ -243,11 +316,15 @@ export function CartProvider({
   );
 }
 
-/* ---------------- Hook ---------------- */
+/* =========================================================
+   HOOK
+========================================================= */
 
 export function useCartContext() {
   const context =
-    useContext(CartContext);
+    useContext(
+      CartContext
+    );
 
   if (!context) {
     throw new Error(

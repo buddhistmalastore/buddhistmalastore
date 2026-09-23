@@ -51,9 +51,7 @@ export default function MobileNav() {
 
   return (
     <>
-      {/* ================================================= */}
       {/* MENU BUTTON */}
-      {/* ================================================= */}
 
       <button
         type="button"
@@ -82,9 +80,7 @@ export default function MobileNav() {
         <FiMenu size={22} />
       </button>
 
-      {/* ================================================= */}
       {/* OVERLAY */}
-      {/* ================================================= */}
 
       <div
         onClick={() => setOpen(false)}
@@ -93,6 +89,7 @@ export default function MobileNav() {
           fixed
           inset-0
           z-[98]
+          lg:hidden
           bg-black/40
           transition-all
           duration-300
@@ -104,9 +101,7 @@ export default function MobileNav() {
         `}
       />
 
-      {/* ================================================= */}
       {/* DRAWER */}
-      {/* ================================================= */}
 
       <aside
         aria-hidden={!open}
@@ -115,6 +110,7 @@ export default function MobileNav() {
           right-0
           top-0
           z-[99]
+          lg:hidden
           flex
           h-screen
           w-[330px]
@@ -131,9 +127,7 @@ export default function MobileNav() {
           }
         `}
       >
-        {/* ================================================= */}
         {/* HEADER */}
-        {/* ================================================= */}
 
         <div
           className="
@@ -191,9 +185,7 @@ export default function MobileNav() {
           </button>
         </div>
 
-        {/* ================================================= */}
         {/* NAVIGATION */}
-        {/* ================================================= */}
 
         <nav
           className="
@@ -246,9 +238,7 @@ export default function MobileNav() {
           </div>
         </nav>
 
-        {/* ================================================= */}
         {/* BOTTOM CART */}
-        {/* ================================================= */}
 
         <div
           className="

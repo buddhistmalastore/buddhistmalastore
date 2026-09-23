@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import {
   FiSearch,
@@ -15,12 +15,118 @@ import CartDrawer from "@/components/cart/CartDrawer";
 import useCart from "@/hooks/useCart";
 import useWishlist from "@/hooks/useWishlist";
 
+type Customer = {
+  id: number;
+  email: string;
+  first_name?: string;
+  last_name?: string;
+};
+
 export default function NavIcons() {
   const [searchOpen, setSearchOpen] = useState(false);
   const [cartOpen, setCartOpen] = useState(false);
 
+  const [customer, setCustomer] =
+    useState<Customer | null>(null);
+
+  const [authLoading, setAuthLoading] =
+    useState(true);
+
   const { cartCount } = useCart();
   const { wishlist } = useWishlist();
+
+  /* =========================================================
+     CHECK AUTHENTICATION
+  ========================================================= */
+
+  useEffect(() => {
+    let cancelled = false;
+
+    const checkAuthentication = async () => {
+      try {
+        const response = await fetch(
+          "/api/auth/me",
+          {
+            method: "GET",
+            credentials: "include",
+            cache: "no-store",
+          }
+        );
+
+        if (!response.ok) {
+          if (!cancelled) {
+            setCustomer(null);
+          }
+
+          return;
+        }
+
+        const data = await response.json();
+
+        if (
+          !cancelled &&
+          data?.success === true &&
+          data?.authenticated === true &&
+          data?.customer
+        ) {
+          setCustomer(data.customer);
+        } else if (!cancelled) {
+          setCustomer(null);
+        }
+      } catch (error) {
+        console.error(
+          "Header authentication check failed:",
+          error
+        );
+
+        if (!cancelled) {
+          setCustomer(null);
+        }
+      } finally {
+        if (!cancelled) {
+          setAuthLoading(false);
+        }
+      }
+    };
+
+    checkAuthentication();
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  /* =========================================================
+     CUSTOMER DISPLAY NAME
+  ========================================================= */
+
+  const firstName =
+    customer?.first_name?.trim() || "";
+
+  const lastName =
+    customer?.last_name?.trim() || "";
+
+  const username =
+    customer?.email
+      ? customer.email.split("@")[0]
+      : "";
+
+  const displayName =
+    firstName ||
+    username ||
+    "Account";
+
+  const accountLabel = customer
+    ? `Hi, ${displayName}`
+    : "Account";
+
+  /* =========================================================
+     ACCOUNT LABEL
+  ========================================================= */
+
+  const accountText = authLoading
+    ? "Account"
+    : accountLabel;
 
   return (
     <>
@@ -30,7 +136,9 @@ export default function NavIcons() {
 
       <div className="hidden lg:flex items-center gap-3">
 
-        {/* Search */}
+        {/* =================================================
+            SEARCH
+        ================================================= */}
 
         <button
           type="button"
@@ -58,7 +166,9 @@ export default function NavIcons() {
           <FiSearch size={18} />
         </button>
 
-        {/* Wishlist */}
+        {/* =================================================
+            WISHLIST
+        ================================================= */}
 
         <Link
           href="/wishlist"
@@ -108,20 +218,23 @@ export default function NavIcons() {
           )}
         </Link>
 
-        {/* Account */}
+        {/* =================================================
+            ACCOUNT
+        ================================================= */}
 
         <Link
           href="/account"
           className="
             flex
             h-11
-            w-11
             items-center
             justify-center
+            gap-2
             rounded-full
             border
             border-[#E8DFD2]
             bg-white
+            px-3
             text-[#1A1A1A]
             transition-all
             duration-300
@@ -130,12 +243,35 @@ export default function NavIcons() {
             hover:text-white
             hover:shadow-lg
           "
-          aria-label="My Account"
+          aria-label={
+            customer
+              ? `My Account - ${accountText}`
+              : "My Account"
+          }
+          title={
+            customer
+              ? accountText
+              : "My Account"
+          }
         >
           <FiUser size={18} />
+
+          <span
+            className="
+              max-w-[120px]
+              truncate
+              text-sm
+              font-medium
+              whitespace-nowrap
+            "
+          >
+            {accountText}
+          </span>
         </Link>
 
-        {/* Cart */}
+        {/* =================================================
+            CART
+        ================================================= */}
 
         <button
           type="button"
@@ -185,7 +321,6 @@ export default function NavIcons() {
             </span>
           )}
         </button>
-
       </div>
 
       {/* ================================================= */}
