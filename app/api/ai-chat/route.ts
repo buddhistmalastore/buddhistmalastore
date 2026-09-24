@@ -679,15 +679,15 @@ function productMatchesRequest(
     );
 
   if (
-    requestedTerms.length > 0
-  ) {
-    return requestedTerms.some(
-      (term) =>
-        searchable.includes(
-          normalizeText(term)
-        )
-    );
-  }
+  requestedTerms.length > 0
+) {
+  return requestedTerms.every(
+    (term) =>
+      searchable.includes(
+        normalizeText(term)
+      )
+  );
+}
 
   return searchable.includes(
     query
@@ -1224,13 +1224,51 @@ export async function POST(
       "AI PRODUCTS FOUND:",
       products.length
     );
+/* =====================================================
+   GENERAL ADVICE DETECTION
+===================================================== */
 
+function isGeneralAdviceQuestion(
+  message: string
+): boolean {
+  const text = normalizeText(message);
+
+  const patterns = [
+    "how can i choose",
+    "how do i choose",
+    "how should i choose",
+    "how to choose",
+    "which mala should i choose",
+    "which mala is right",
+    "what mala should i choose",
+    "what mala is right",
+    "help me choose",
+    "help me select",
+    "how can i select",
+    "how do i select",
+    "what should i look for",
+    "what should i consider",
+    "which one should i choose",
+    "which one is right",
+    "what is a mala",
+    "what are malas used for",
+    "what is a 108 bead mala",
+    "what does a mala mean",
+  ];
+
+  return patterns.some(
+    (pattern) =>
+      text.includes(pattern)
+  );
+}
     /* =====================================================
        DIRECT WOOCOMMERCE ANSWER
     ===================================================== */
 
     const directReply =
-      buildDirectProductReply(
+  isGeneralAdviceQuestion(message)
+    ? null
+    : buildDirectProductReply(
         products,
         message
       );
@@ -1396,29 +1434,100 @@ Do not begin every response with Namaste.
 Keep the answer concise and natural.
 `;
 
-    /* =====================================================
-       GEMINI REQUEST
+     /* =====================================================
+       GEMINI REQUEST WITH RETRY + FALLBACK
     ===================================================== */
 
-    const response =
-      await ai.models.generateContent(
-        {
-          model:
-            "gemini-3.6-flash",
+    async function generateGeminiResponse(
+      model: string,
+      attempts = 3
+    ) {
+      let lastError: unknown;
 
-          contents:
-            prompt,
+      for (
+        let attempt = 0;
+        attempt < attempts;
+        attempt++
+      ) {
+        try {
+          return await ai.models.generateContent({
+            model,
 
-          config: {
-            systemInstruction:
-              SYSTEM_INSTRUCTION,
+            contents: prompt,
 
-            maxOutputTokens:
-              600,
-          },
+            config: {
+              systemInstruction:
+                SYSTEM_INSTRUCTION,
+
+              maxOutputTokens:
+                600,
+            },
+          });
+        } catch (error) {
+          lastError = error;
+
+          const errorText =
+            error instanceof Error
+              ? error.message
+              : String(error);
+
+          const isTemporaryError =
+            errorText.includes("503") ||
+            errorText.includes("UNAVAILABLE") ||
+            errorText.includes("429") ||
+            errorText.includes("RESOURCE_EXHAUSTED");
+
+          if (
+            !isTemporaryError ||
+            attempt === attempts - 1
+          ) {
+            throw error;
+          }
+
+          const delay =
+            1000 *
+            Math.pow(
+              2,
+              attempt
+            );
+
+          console.warn(
+            `Gemini ${model} temporarily unavailable. Retrying in ${delay}ms...`
+          );
+
+          await new Promise(
+            (resolve) =>
+              setTimeout(
+                resolve,
+                delay
+              )
+          );
         }
+      }
+
+      throw lastError;
+    }
+
+    let response;
+
+    try {
+      response =
+        await generateGeminiResponse(
+          "gemini-3.6-flash",
+          3
+        );
+    } catch (primaryError) {
+      console.warn(
+        "Gemini 3.6 Flash failed. Trying fallback model:",
+        primaryError
       );
 
+      response =
+        await generateGeminiResponse(
+          "gemini-3.5-flash-lite",
+          2
+        );
+    }
     /* =====================================================
        GEMINI RESPONSE
     ===================================================== */
