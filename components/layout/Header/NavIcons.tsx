@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+
 import {
   FiSearch,
   FiHeart,
@@ -103,9 +104,6 @@ export default function NavIcons() {
   const firstName =
     customer?.first_name?.trim() || "";
 
-  const lastName =
-    customer?.last_name?.trim() || "";
-
   const username =
     customer?.email
       ? customer.email.split("@")[0]
@@ -119,10 +117,6 @@ export default function NavIcons() {
   const accountLabel = customer
     ? `Hi, ${displayName}`
     : "Account";
-
-  /* =========================================================
-     ACCOUNT LABEL
-  ========================================================= */
 
   const accountText = authLoading
     ? "Account"
@@ -260,9 +254,9 @@ export default function NavIcons() {
             className="
               max-w-[120px]
               truncate
+              whitespace-nowrap
               text-sm
               font-medium
-              whitespace-nowrap
             "
           >
             {accountText}
@@ -324,6 +318,46 @@ export default function NavIcons() {
       </div>
 
       {/* ================================================= */}
+      {/* MOBILE ACCOUNT */}
+      {/* ================================================= */}
+
+      <Link
+        href="/account"
+        className="
+          flex
+          h-10
+          w-10
+          items-center
+          justify-center
+          rounded-full
+          border
+          border-[#E8DFD2]
+          bg-white
+          text-[#1A1A1A]
+          shadow-sm
+          transition-all
+          duration-300
+          hover:border-[#C79B2A]
+          hover:bg-[#C79B2A]
+          hover:text-white
+          hover:shadow-lg
+          lg:hidden
+        "
+        aria-label={
+          customer
+            ? `My Account - ${accountText}`
+            : "My Account"
+        }
+        title={
+          customer
+            ? accountText
+            : "My Account"
+        }
+      >
+        <FiUser size={19} />
+      </Link>
+
+      {/* ================================================= */}
       {/* MOBILE CART */}
       {/* ================================================= */}
 
@@ -333,8 +367,8 @@ export default function NavIcons() {
         className="
           relative
           flex
-          h-11
-          w-11
+          h-10
+          w-10
           items-center
           justify-center
           rounded-full
@@ -352,8 +386,9 @@ export default function NavIcons() {
           lg:hidden
         "
         aria-label="Shopping Cart"
+        title="Cart"
       >
-        <FiShoppingBag size={20} />
+        <FiShoppingBag size={19} />
 
         {cartCount > 0 && (
           <span

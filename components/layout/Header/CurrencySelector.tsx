@@ -1,7 +1,10 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { FiChevronDown, FiCheck } from "react-icons/fi";
+import {
+  FiChevronDown,
+  FiCheck,
+} from "react-icons/fi";
 
 import {
   currencies,
@@ -21,11 +24,9 @@ export default function CurrencySelector() {
   const selectorRef =
     useRef<HTMLDivElement>(null);
 
-  /*
-  |--------------------------------------------------------------------------
-  | Close when clicking outside
-  |--------------------------------------------------------------------------
-  */
+  /* =========================================================
+     CLOSE WHEN CLICKING OUTSIDE
+  ========================================================= */
 
   useEffect(() => {
     const handleClickOutside = (
@@ -54,11 +55,9 @@ export default function CurrencySelector() {
     };
   }, []);
 
-  /*
-  |--------------------------------------------------------------------------
-  | Current currency
-  |--------------------------------------------------------------------------
-  */
+  /* =========================================================
+     CURRENT CURRENCY
+  ========================================================= */
 
   const currentCurrency =
     currencies.find(
@@ -66,11 +65,9 @@ export default function CurrencySelector() {
         item.code === currency
     );
 
-  /*
-  |--------------------------------------------------------------------------
-  | Change currency
-  |--------------------------------------------------------------------------
-  */
+  /* =========================================================
+     CHANGE CURRENCY
+  ========================================================= */
 
   const handleCurrencyChange = (
     code: CurrencyCode
@@ -82,70 +79,138 @@ export default function CurrencySelector() {
   return (
     <div
       ref={selectorRef}
-      className="relative hidden md:block"
+      className="relative"
     >
-      {/* Selector Button */}
+      {/* ================================================= */}
+      {/* DESKTOP SELECTOR */}
+      {/* ================================================= */}
 
-      <button
-        type="button"
-        onClick={() =>
-          setOpen((prev) => !prev)
-        }
-        aria-label="Select currency"
-        aria-expanded={open}
-        className="
-          group
-          flex
-          items-center
-          gap-2
-          rounded-full
-          border
-          border-[#E8DFD2]
-          bg-white/80
-          px-4
-          py-2.5
-          text-sm
-          font-semibold
-          text-[#333]
-          shadow-sm
-          backdrop-blur
-          transition-all
-          duration-300
-          hover:border-[#C89A2A]
-          hover:text-[#C89A2A]
-          hover:shadow-md
-        "
-      >
-        <span className="text-base">
-          {currentCurrency?.flag}
-        </span>
-
-        <span>
-          {currentCurrency?.code}
-        </span>
-
-        <FiChevronDown
-          size={15}
-          className={`
-            transition-transform
+      <div className="hidden md:block">
+        <button
+          type="button"
+          onClick={() =>
+            setOpen((prev) => !prev)
+          }
+          aria-label="Select currency"
+          aria-expanded={open}
+          className="
+            group
+            flex
+            items-center
+            gap-2
+            rounded-full
+            border
+            border-[#E8DFD2]
+            bg-white/80
+            px-4
+            py-2.5
+            text-sm
+            font-semibold
+            text-[#333]
+            shadow-sm
+            backdrop-blur
+            transition-all
             duration-300
-            ${
-              open
-                ? "rotate-180"
-                : ""
-            }
-          `}
-        />
-      </button>
+            hover:border-[#C89A2A]
+            hover:text-[#C89A2A]
+            hover:shadow-md
+          "
+        >
+          <span className="text-base">
+            {currentCurrency?.flag}
+          </span>
 
-      {/* Dropdown */}
+          <span>
+            {currentCurrency?.code}
+          </span>
+
+          <FiChevronDown
+            size={15}
+            className={`
+              transition-transform
+              duration-300
+              ${
+                open
+                  ? "rotate-180"
+                  : ""
+              }
+            `}
+          />
+        </button>
+      </div>
+
+      {/* ================================================= */}
+      {/* MOBILE SELECTOR */}
+      {/* ================================================= */}
+
+      <div className="md:hidden">
+        <button
+          type="button"
+          onClick={() =>
+            setOpen((prev) => !prev)
+          }
+          aria-label={`Select currency. Current currency: ${currentCurrency?.code}`}
+          aria-expanded={open}
+          className="
+            flex
+            h-10
+            min-w-10
+            items-center
+            justify-center
+            gap-1
+            rounded-full
+            border
+            border-[#E8DFD2]
+            bg-white
+            px-2
+            text-[#1A1A1A]
+            shadow-sm
+            transition-all
+            duration-300
+            hover:border-[#C89A2A]
+            hover:text-[#C89A2A]
+            hover:shadow-lg
+          "
+        >
+          <span className="text-sm">
+            {currentCurrency?.flag}
+          </span>
+
+          <span
+            className="
+              text-[10px]
+              font-bold
+              tracking-wide
+            "
+          >
+            {currentCurrency?.code}
+          </span>
+
+          <FiChevronDown
+            size={12}
+            className={`
+              transition-transform
+              duration-300
+              ${
+                open
+                  ? "rotate-180"
+                  : ""
+              }
+            `}
+          />
+        </button>
+      </div>
+
+      {/* ================================================= */}
+      {/* DROPDOWN */}
+      {/* ================================================= */}
 
       {open && (
         <div
           className="
             absolute
             right-0
-            top-[calc(100%+14px)]
+            top-[calc(100%+10px)]
             z-[100]
             w-[270px]
             overflow-hidden
@@ -206,8 +271,7 @@ export default function CurrencySelector() {
             {currencies.map(
               (item) => {
                 const selected =
-                  item.code ===
-                  currency;
+                  item.code === currency;
 
                 return (
                   <button
@@ -259,8 +323,8 @@ export default function CurrencySelector() {
 
                     <span
                       className="
-                        flex-1
                         min-w-0
+                        flex-1
                       "
                     >
                       <span

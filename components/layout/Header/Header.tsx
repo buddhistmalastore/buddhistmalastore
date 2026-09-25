@@ -1,5 +1,7 @@
 "use client";
 
+import Link from "next/link";
+
 import TopBar from "./TopBar";
 import Logo from "./Logo";
 import DesktopNav from "./DesktopNav";
@@ -48,7 +50,7 @@ export default function Header() {
             max-w-[1500px]
             items-center
             justify-between
-            px-4
+            px-3
             sm:px-6
             lg:h-24
             lg:px-10
@@ -73,21 +75,61 @@ export default function Header() {
           <div
             className="
               flex
+              shrink-0
               items-center
-              gap-2
-              sm:gap-3
+              gap-0.5
+              sm:gap-2
               lg:gap-5
             "
           >
-            {/* Currency */}
+            {/* ================================================= */}
+{/* MOBILE SHOP */}
+{/* ================================================= */}
+
+<Link
+  href="/shop"
+  className="
+    flex
+    h-10
+    items-center
+    justify-center
+    rounded-full
+    border
+    border-[#E8DFD2]
+    bg-white
+    px-3
+    text-[13px]
+    font-semibold
+    text-[#1A1A1A]
+    shadow-sm
+    transition-all
+    duration-300
+    hover:border-[#C79B2A]
+    hover:bg-[#C79B2A]
+    hover:text-white
+    hover:shadow-md
+    lg:hidden
+  "
+  aria-label="Shop"
+>
+  Shop
+</Link>
+
+            {/* ================================================= */}
+            {/* CURRENCY */}
+            {/* ================================================= */}
 
             <CurrencySelector />
 
-            {/* Desktop Search / Wishlist / Account / Cart */}
+            {/* ================================================= */}
+            {/* ACCOUNT + CART */}
+            {/* ================================================= */}
 
             <NavIcons />
 
-            {/* Mobile Menu */}
+            {/* ================================================= */}
+            {/* MOBILE MENU */}
+            {/* ================================================= */}
 
             <MobileNav />
           </div>
