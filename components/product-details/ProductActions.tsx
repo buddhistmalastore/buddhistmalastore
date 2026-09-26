@@ -1,6 +1,11 @@
 "use client";
 
+import { useRouter } from "next/navigation";
+
 import { Product } from "@/types/product";
+
+import useCart from "@/hooks/useCart";
+
 import {
   FiHeart,
   FiShoppingCart,
@@ -16,16 +21,58 @@ interface Props {
 export default function ProductActions({
   product,
 }: Props) {
+  const router = useRouter();
+
+  const {
+    addToCart,
+    closeCart,
+  } = useCart();
+
+  /* =========================================================
+     ADD TO CART
+  ========================================================= */
+
+  const handleAddToCart = () => {
+    addToCart(product, 1);
+  };
+
+  /* =========================================================
+     BUY NOW
+  ========================================================= */
+
+  const handleBuyNow = () => {
+    /*
+     * Add the product using the existing cart system.
+     */
+    addToCart(product, 1);
+
+    /*
+     * addToCart() normally opens the cart drawer.
+     * Buy Now should go directly to checkout,
+     * so immediately close the drawer.
+     */
+    closeCart();
+
+    /*
+     * Go directly to checkout.
+     */
+    router.push("/checkout");
+  };
+
   return (
     <section>
 
-      {/* Purchase Buttons */}
+      {/* =====================================================
+          PURCHASE BUTTONS
+      ===================================================== */}
 
       <div className="grid grid-cols-2 gap-3">
 
-        {/* Add To Cart */}
+        {/* ADD TO CART */}
 
         <button
+          type="button"
+          onClick={handleAddToCart}
           className="
             flex
             items-center
@@ -50,6 +97,8 @@ export default function ProductActions({
             duration-300
 
             hover:bg-[#B68B20]
+
+            active:scale-[0.98]
           "
         >
           <FiShoppingCart size={17} />
@@ -57,9 +106,11 @@ export default function ProductActions({
           Add to Cart
         </button>
 
-        {/* Buy Now */}
+        {/* BUY NOW */}
 
         <button
+          type="button"
+          onClick={handleBuyNow}
           className="
             flex
             items-center
@@ -83,6 +134,8 @@ export default function ProductActions({
 
             hover:bg-[#1A1A1A]
             hover:text-white
+
+            active:scale-[0.98]
           "
         >
           <FiZap size={17} />
@@ -92,9 +145,12 @@ export default function ProductActions({
 
       </div>
 
-      {/* Wishlist */}
+      {/* =====================================================
+          WISHLIST
+      ===================================================== */}
 
       <button
+        type="button"
         className="
           mt-4
 
@@ -116,7 +172,9 @@ export default function ProductActions({
         Add to Wishlist
       </button>
 
-      {/* Quick Contact */}
+      {/* =====================================================
+          QUICK CONTACT
+      ===================================================== */}
 
       <div
         className="
@@ -132,7 +190,6 @@ export default function ProductActions({
           p-5
         "
       >
-
         <div
           className="
             mb-4
@@ -152,7 +209,10 @@ export default function ProductActions({
 
         <div className="grid grid-cols-2 gap-3">
 
+          {/* WHATSAPP */}
+
           <button
+            type="button"
             className="
               flex
               items-center
@@ -180,7 +240,10 @@ export default function ProductActions({
             WhatsApp
           </button>
 
+          {/* CALL */}
+
           <button
+            type="button"
             className="
               flex
               items-center
@@ -209,10 +272,11 @@ export default function ProductActions({
           </button>
 
         </div>
-
       </div>
 
-      {/* Trust Badges */}
+      {/* =====================================================
+          TRUST BADGES
+      ===================================================== */}
 
       <div
         className="
@@ -228,7 +292,6 @@ export default function ProductActions({
           p-5
         "
       >
-
         <TrustRow text="100% Handmade in Nepal" />
 
         <TrustRow text="Natural & Genuine Gemstones" />
@@ -238,12 +301,15 @@ export default function ProductActions({
         <TrustRow text="Secure Checkout" />
 
         <TrustRow text="Easy Returns" />
-
       </div>
 
     </section>
   );
 }
+
+/* =========================================================
+   TRUST ROW
+========================================================= */
 
 function TrustRow({
   text,

@@ -1,6 +1,12 @@
 "use client";
 
-import { useState, useEffect, RefObject } from "react";
+import {
+  useState,
+  useEffect,
+  RefObject,
+} from "react";
+
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 
 import { Product } from "@/types/product";
@@ -21,10 +27,13 @@ export default function ProductBuyBox({
   product,
   buyBoxRef,
 }: Props) {
+  const router = useRouter();
+
   const {
     addToCart,
     isInCart,
     getQuantity,
+    closeCart,
   } = useCart();
 
   const added = isInCart(product.id);
@@ -35,15 +44,35 @@ export default function ProductBuyBox({
     cartQty || 1
   );
 
+  /* =========================================================
+     SYNC QUANTITY WITH CART
+  ========================================================= */
+
   useEffect(() => {
     setQty(cartQty || 1);
   }, [cartQty]);
 
+  /* =========================================================
+     BUY NOW
+  ========================================================= */
+
+  const handleBuyNow = () => {
+    addToCart(product, qty);
+
+    closeCart();
+
+    router.push("/checkout");
+  };
+
   return (
     <section ref={buyBoxRef}>
-      {/* Stock */}
+
+      {/* =====================================================
+          STOCK
+      ===================================================== */}
 
       <div className="flex items-center gap-2">
+
         <span
           className="
             h-2.5
@@ -62,9 +91,12 @@ export default function ProductBuyBox({
         >
           In Stock ({product.stock} Available)
         </span>
+
       </div>
 
-      {/* Quantity + Buttons */}
+      {/* =====================================================
+          QUANTITY + BUTTONS
+      ===================================================== */}
 
       <div
         className="
@@ -73,12 +105,19 @@ export default function ProductBuyBox({
           gap-3
         "
       >
+
+        {/* ===================================================
+            QUANTITY SELECTOR
+        =================================================== */}
+
         <QuantitySelector
           value={qty}
           onChange={setQty}
         />
 
-        {/* Add to Cart */}
+        {/* ===================================================
+            ADD TO CART
+        =================================================== */}
 
         <button
           type="button"
@@ -90,17 +129,27 @@ export default function ProductBuyBox({
             items-center
             justify-center
             gap-2
+
             rounded-xl
+
             border
             border-[#C89A2A]
+
             bg-white
+
             py-3
+
             font-semibold
+
             text-[#C89A2A]
+
             transition-all
             duration-300
+
             hover:bg-[#C89A2A]
             hover:text-white
+
+            active:scale-[0.98]
           "
         >
           <FiShoppingCart size={18} />
@@ -110,27 +159,35 @@ export default function ProductBuyBox({
             : "Add to Cart"}
         </button>
 
-        {/* Buy Now */}
+        {/* ===================================================
+            BUY NOW
+        =================================================== */}
 
-        <Link
-          href={
-            added
-              ? "/checkout"
-              : "#"
-          }
+        <button
+          type="button"
+          onClick={handleBuyNow}
           className="
             flex
             items-center
             justify-center
             gap-2
+
             rounded-xl
+
             bg-[#1A1A1A]
+
             py-3
+
             font-semibold
+
             text-white
+
             transition-all
             duration-300
+
             hover:bg-[#C89A2A]
+
+            active:scale-[0.98]
           "
         >
           <HiLightningBolt size={18} />
@@ -138,33 +195,45 @@ export default function ProductBuyBox({
           {added
             ? "Checkout"
             : "Buy Now"}
-        </Link>
+        </button>
+
       </div>
 
-      {/* View Cart */}
+      {/* =====================================================
+          VIEW CART
+      ===================================================== */}
 
       {added && (
         <Link
           href="/cart"
           className="
             mt-3
+
             flex
             w-full
             items-center
             justify-center
+
             rounded-xl
+
             bg-green-600
+
             py-3
+
             font-semibold
+
             text-white
+
             transition-all
             duration-300
+
             hover:bg-green-700
           "
         >
           ✓ View Cart
         </Link>
       )}
+
     </section>
   );
 }
