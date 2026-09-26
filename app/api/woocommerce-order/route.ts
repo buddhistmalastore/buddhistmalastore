@@ -5,6 +5,8 @@ import {
   CreateWooCommerceOrderInput,
 } from "@/lib/woocommerce";
 
+import { getAuthenticatedCustomerId } from "@/lib/auth";
+
 /* =========================================================
    TYPES
 ========================================================= */
@@ -67,6 +69,13 @@ export async function POST(
       items,
       notes,
     } = body;
+
+    /* =======================================================
+   AUTHENTICATED CUSTOMER
+======================================================= */
+
+const authenticatedCustomerId =
+  await getAuthenticatedCustomerId();
 
     /* =======================================================
        BASIC VALIDATION
@@ -493,33 +502,40 @@ export async function POST(
     ======================================================= */
 
     const order:
-      CreateWooCommerceOrderInput =
-      {
-        payment_method:
-          wooPaymentMethod,
+  CreateWooCommerceOrderInput =
+  {
+    ...(authenticatedCustomerId
+      ? {
+          customer_id:
+            authenticatedCustomerId,
+        }
+      : {}),
 
-        payment_method_title:
-          wooPaymentTitle,
+    payment_method:
+      wooPaymentMethod,
 
-        set_paid:
-          false,
+    payment_method_title:
+      wooPaymentTitle,
 
-        billing,
+    set_paid:
+      false,
 
-        shipping,
+    billing,
 
-        line_items:
-          lineItems,
+    shipping,
 
-        customer_note:
-          typeof notes ===
-          "string"
-            ? notes.trim()
-            : "",
+    line_items:
+      lineItems,
 
-        meta_data:
-          metaData,
-      };
+    customer_note:
+      typeof notes ===
+      "string"
+        ? notes.trim()
+        : "",
+
+    meta_data:
+      metaData,
+  };
 
     /* =======================================================
        CREATE ORDER

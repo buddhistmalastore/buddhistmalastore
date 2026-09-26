@@ -214,6 +214,15 @@ export interface WooCommerceMetaData {
 }
 
 export interface CreateWooCommerceOrderInput {
+  /**
+   * WooCommerce customer ID.
+   *
+   * Optional because guest checkout is still supported.
+   * Logged-in customers should provide their WooCommerce
+   * customer ID so orders appear in My Orders.
+   */
+  customer_id?: number;
+
   payment_method: string;
 
   payment_method_title: string;
