@@ -2,9 +2,14 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { FiChevronLeft, FiChevronRight, FiStar } from "react-icons/fi";
+import {
+  FiChevronLeft,
+  FiChevronRight,
+  FiStar,
+} from "react-icons/fi";
 
 import { Product } from "@/types/product";
+import { useCurrency } from "@/context/CurrencyContext";
 
 interface Props {
   product: Product;
@@ -17,6 +22,8 @@ export default function ProductHeader({
   previous,
   next,
 }: Props) {
+  const { formatPrice } = useCurrency();
+
   return (
     <section>
 
@@ -39,11 +46,13 @@ export default function ProductHeader({
           <NavButton
             product={previous}
             direction="left"
+            formatPrice={formatPrice}
           />
 
           <NavButton
             product={next}
             direction="right"
+            formatPrice={formatPrice}
           />
 
         </div>
@@ -79,11 +88,13 @@ export default function ProductHeader({
 interface NavButtonProps {
   product?: Product;
   direction: "left" | "right";
+  formatPrice: (price: number) => string;
 }
 
 function NavButton({
   product,
   direction,
+  formatPrice,
 }: NavButtonProps) {
 
   const Button = (
@@ -167,15 +178,19 @@ function NavButton({
         <div className="p-4">
 
           <div className="text-xs uppercase tracking-[2px] text-[#B68A1F]">
-            {direction === "left" ? "Previous Product" : "Next Product"}
+            {direction === "left"
+              ? "Previous Product"
+              : "Next Product"}
           </div>
 
           <h3 className="mt-2 line-clamp-2 text-[16px] font-semibold leading-6">
             {product.name}
           </h3>
 
+          {/* Currency-aware price */}
+
           <div className="mt-3 text-lg font-bold text-[#C89A2A]">
-            NPR {product.price}
+            {formatPrice(Number(product.price))}
           </div>
 
           <p className="mt-1 text-sm text-[#777]">
